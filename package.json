@@ -1,0 +1,16 @@
+{
+  "name": "synec",
+  "version": "0.1.0",
+  "license": "MIT",
+  "author": "Matthias Giger",
+  "repository": "github:tobua/synec",
+  "bin": "./index.js",
+  "type": "module",
+  "scripts": {
+    "start": "tsc --watch",
+    "release": "standard-version"
+  },
+  "devDependencies": {
+    "standard-version": "^8.0.2"
+  }
+}
