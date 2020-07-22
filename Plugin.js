@@ -1,11 +1,18 @@
-import { join } from 'path'
-import { readFileSync } from 'fs'
 import validateOptions from 'schema-utils'
-import pacote from 'pacote'
-// import chokidar from 'chokidar'
+import {
+  getLocalDependencies,
+  installDependenciesWithoutSave,
+  installLocalDependency,
+  installDependenciesIfMissing,
+} from './utility.js'
+
+// https://github.com/sindresorhus/is-installed-globally/blob/master/index.js
+// https://www.npmjs.com/package/is-installed-locally
+
+const pluginName = 'LocalDependenciesPlugin'
 
 const schema = {
-  title: 'LocalDependenciesPlugin options',
+  title: `${pluginName} options`,
   type: 'object',
   properties: {
     production: {
@@ -22,43 +29,47 @@ const schema = {
 
 export const LocalDependenciesPlugin = class {
   constructor(options = { production: false, watch: true }) {
-    validateOptions(schema, options, { name: 'LocalDependenciesPlugin' })
-    this.production = options.production
-    this.watch = options.watch
+    validateOptions(schema, options, { name: pluginName })
+    this.options = options
   }
 
   apply(compiler) {
-    if (compiler.options.mode === 'production' && !this.production) {
+    if (compiler.options.mode === 'production' && !this.options.production) {
       return
     }
 
-    const { localDependencies } = JSON.parse(
-      readFileSync(join(process.cwd(), 'package.json'), 'utf8')
-    )
+    const localDependencies = getLocalDependencies()
 
-    if (!localDependencies || Object.keys(localDependencies).length < 1) {
+    if (!localDependencies) {
       return
     }
 
-    Object.keys(localDependencies).forEach((name) => {
-      const packagePath = localDependencies[name]
-      console.log(`synec: Installing ${name} from ${packagePath}`)
+    console.log('plugin')
 
-      console.log(join(process.cwd(), 'node_modules', name))
-      pacote
-        .extract(packagePath, join(process.cwd(), 'node_modules', name))
-        .then(({ from, resolved, integrity }) => {
-          console.log('extracted!', from, resolved, integrity)
-        })
+    // Initial install of local dependencies.
+    compiler.hooks.environment.tap(pluginName, () => {
+      const dependencyPaths = Object.keys(localDependencies).map(
+        (name) => localDependencies[name]
+      )
+
+      //   const dependencyPaths = []
+      //   for (const name in localDependencies) {
+      //     const packagePath = localDependencies[name]
+      //     dependencyPaths.push(packagePath)
+      //     // await installLocalDependency(name, packagePath)
+      //     // await installDependenciesIfMissing(name, packagePath)
+      //   }
+
+      installDependenciesWithoutSave(dependencyPaths)
     })
 
-    compiler.hooks.watchRun.tapAsync(
-      'LocalDependenciesPlugin',
-      (_compiler, done) => {
-        console.log('WATCH RUN')
+    if (!this.options.watch) {
+      return
+    }
 
-        return done()
-      }
-    )
+    compiler.hooks.watchRun.tapAsync(pluginName, (_compiler, done) => {
+      console.log('tap watchrun WATCH RUN')
+      done()
+    })
   }
 }
