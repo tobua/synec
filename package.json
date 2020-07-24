@@ -4,12 +4,16 @@
   "license": "MIT",
   "author": "Matthias Giger",
   "repository": "github:tobua/synec",
-  "bin": "./cli.js",
+  "bin": "./cli/index.js",
   "main": "./index.js",
   "type": "module",
   "scripts": {
     "start": "tsc --watch",
-    "release": "standard-version"
+    "release": "standard-version",
+    "postinstall": "node ./installation.js"
+  },
+  "engines": {
+    "node": ">=13.2.0"
   },
   "prettier": {
     "singleQuote": true,
@@ -21,6 +25,7 @@
   },
   "dependencies": {
     "chokidar": "^3.4.1",
+    "ora": "^4.0.5",
     "pacote": "^11.1.10",
     "schema-utils": "^2.7.0",
     "semver": "^7.3.2"

@@ -1,20 +1,83 @@
 import { join } from 'path'
-import { readFileSync, unlinkSync } from 'fs'
+import { readFileSync, readdirSync, unlinkSync, copyFileSync } from 'fs'
 import childProcess from 'child_process'
 import pacote from 'pacote'
 import semver from 'semver'
-// import chokidar from 'chokidar'
+import ora from 'ora'
+import chokidar from 'chokidar'
 
 export const getLocalDependencies = () => {
   const { localDependencies } = JSON.parse(
     readFileSync(join(process.cwd(), 'package.json'), 'utf8')
   )
 
-  if (!localDependencies || Object.keys(localDependencies).length < 1) {
+  if (!localDependencies) {
     return false
   }
 
-  return localDependencies
+  // Only Objects and Arrays
+  if (typeof localDependencies !== 'object') {
+    return false
+  }
+
+  // Array or object needs at least one entry
+  if (Array.isArray(localDependencies)) {
+    if (localDependencies.length < 1) {
+      return false
+    }
+  } else {
+    if (Object.keys(localDependencies).length < 1) {
+      return false
+    }
+  }
+
+  // We only need the paths to the packages
+  if (Array.isArray(localDependencies)) {
+    return localDependencies
+  }
+
+  // Convert object to path array
+  return Object.keys(localDependencies).map((name) => localDependencies[name])
+}
+
+export const installWithoutSave = (packagePaths) => {
+  const spinner = ora('synec: Installing localDependencies').start()
+  spinner.color = 'blue'
+
+  const tarballs = packagePaths
+    .map((path) => `$(npm pack ${path} | tail -1)`)
+    .join(' ')
+
+  // NOTE console output silenced
+  childProcess.execSync(`npm install --no-save ${tarballs}`, { stdio: 'pipe' })
+
+  readdirSync(process.cwd())
+    .filter((filePath) => filePath.endsWith('.tgz'))
+    .map((filePath) => unlinkSync(filePath))
+
+  spinner.stop()
+}
+
+export const watchLocalDependencies = (packagePaths) => {
+  const watcher = chokidar.watch(packagePaths, {
+    // Watching node_modules is unnecessary, dotfiles contain git etc.
+    ignored: /node_modules|^\/?(?:\w+\/)*(\.\w+)/,
+    // Files already there have been copied by installation.
+    ignoreInitial: true,
+  })
+
+  const copyFile = (filePath) => {
+    console.log(`synec: copying ${filePath}`)
+    const destinationPath = filePath.replace(/^\.\./, 'node_modules')
+    copyFileSync(filePath, destinationPath)
+  }
+
+  const removeFile = (filePath) => {
+    console.log(`synec: removing ${filePath}`)
+    unlinkSync(filePath)
+  }
+
+  watcher.on('add', copyFile).on('change', copyFile).on('unlink', removeFile)
 }
 
 export const installLocalDependency = async (name, packagePath) => {
@@ -27,15 +90,6 @@ export const installLocalDependency = async (name, packagePath) => {
   await pacote.extract(tarballPath, destinationPackagePath)
   unlinkSync(tarballPath)
   console.log('unlinked')
-}
-
-export const installDependenciesWithoutSave = (packagePaths) => {
-  const tarballs = packagePaths
-    .map((path) => `$(npm pack ${path} | tail -1)`)
-    .join(' ')
-
-  // NOTE console output silenced
-  childProcess.execSync(`npm install --no-save ${tarballs}`, { stdio: 'pipe' })
 }
 
 export const installDependenciesIfMissing = async (name, packagePath) => {

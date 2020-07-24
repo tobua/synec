@@ -1,13 +1,9 @@
 import validateOptions from 'schema-utils'
 import {
   getLocalDependencies,
-  installDependenciesWithoutSave,
-  installLocalDependency,
-  installDependenciesIfMissing,
+  installWithoutSave,
+  watchLocalDependencies,
 } from './utility.js'
-
-// https://github.com/sindresorhus/is-installed-globally/blob/master/index.js
-// https://www.npmjs.com/package/is-installed-locally
 
 const pluginName = 'LocalDependenciesPlugin'
 
@@ -44,28 +40,16 @@ export const LocalDependenciesPlugin = class {
       return
     }
 
-    console.log('plugin')
-
     // Initial install of local dependencies.
     compiler.hooks.environment.tap(pluginName, () => {
-      const dependencyPaths = Object.keys(localDependencies).map(
-        (name) => localDependencies[name]
-      )
-
-      //   const dependencyPaths = []
-      //   for (const name in localDependencies) {
-      //     const packagePath = localDependencies[name]
-      //     dependencyPaths.push(packagePath)
-      //     // await installLocalDependency(name, packagePath)
-      //     // await installDependenciesIfMissing(name, packagePath)
-      //   }
-
-      installDependenciesWithoutSave(dependencyPaths)
+      installWithoutSave(localDependencies)
     })
 
     if (!this.options.watch) {
       return
     }
+
+    watchLocalDependencies(localDependencies)
 
     compiler.hooks.watchRun.tapAsync(pluginName, (_compiler, done) => {
       console.log('tap watchrun WATCH RUN')
