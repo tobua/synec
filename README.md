@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/tobua/synec/master/logo.png" alt="synec" width="300">
+  <img src="https://github.com/tobua/synec/raw/master/logo.png" alt="synec" width="300">
 </p>
 
 # synec
@@ -8,13 +8,13 @@ Test local npm packages in projects by listing them in `localDependencies` in th
 
 ```json
 {
-    "name": "your-project",
-    "dependencies" {
-        "react": ""
-    },
-    "localDependencies": {
-        "my-react-plugin": "../my-react-plugin"
-    }
+  "name": "your-project",
+  "dependencies": {
+    "react": ""
+  },
+  "localDependencies": {
+    "my-react-plugin": "../my-react-plugin"
+  }
 }
 ```
 
@@ -40,8 +40,10 @@ This functionality can either be added as a webpack plugin or as an additional c
 Add `synec` in front of a `script` inside `package.json` and it will make sure `localDependencies` are installed and up-to-date when the following command starts. It will continue watching the files and keep them in sync even when the following script runs in watch mode as well.
 
 ```json
-"scripts": {
+{
+  "scripts": {
     "start": "synec && webpack --watch"
+  }
 }
 ```
 
