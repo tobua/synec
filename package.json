@@ -25,8 +25,6 @@
   },
   "dependencies": {
     "chokidar": "^3.4.1",
-    "ora": "^4.0.5",
-    "pacote": "^11.1.10",
     "schema-utils": "^2.7.0",
     "semver": "^7.3.2"
   }

@@ -43,17 +43,12 @@ export const LocalDependenciesPlugin = class {
     // Initial install of local dependencies.
     compiler.hooks.environment.tap(pluginName, () => {
       installWithoutSave(localDependencies)
-    })
 
-    if (!this.options.watch) {
-      return
-    }
+      if (!this.options.watch) {
+        return
+      }
 
-    watchLocalDependencies(localDependencies)
-
-    compiler.hooks.watchRun.tapAsync(pluginName, (_compiler, done) => {
-      console.log('tap watchrun WATCH RUN')
-      done()
+      watchLocalDependencies(localDependencies)
     })
   }
 }
