@@ -1,10 +1,12 @@
-# synec
+<p align="center">
+  <img src="https://raw.githubusercontent.com/tobua/synec/master/logo.png" alt="synec" width="300">
+</p>
 
-> Requires `node` >= 13.2.0
+# synec
 
 Test local npm packages in projects by listing them in `localDependencies` in the `package.json` of the project.
 
-```
+```json
 {
     "name": "your-project",
     "dependencies" {
@@ -19,9 +21,11 @@ Test local npm packages in projects by listing them in `localDependencies` in th
 ## Features
 
 - Installs `localDependencies` before build
-- Watches them for changes and rebuilds
+- Watches for changes and rebuilds
 
 ## Installation
+
+> Requires `node` >= 13.2.0
 
 ```
 npm i synec
@@ -29,11 +33,13 @@ npm i synec
 
 ## Usage
 
-### With script
+This functionality can either be added as a webpack plugin or as an additional command ahead of your build scripts.
 
-Add `synec` in front of a `script` inside `package.json` and it will make sure `localDependencies` are installed and up-to-date when the following command starts and is watching.
+### With scripts
 
-```
+Add `synec` in front of a `script` inside `package.json` and it will make sure `localDependencies` are installed and up-to-date when the following command starts. It will continue watching the files and keep them in sync even when the following script runs in watch mode as well.
+
+```json
 "scripts": {
     "start": "synec && webpack --watch"
 }
@@ -45,22 +51,20 @@ Add `synec` in front of a `script` inside `package.json` and it will make sure `
 
 If your setup is using `webpack` using this plugin is preferred. Inside `webpack.config.js` add
 
-```
+```js
 const { LocalDependenciesPlugin } = require('synec')
-// or for node >= 14 and "type": "module"
+// or as ES module
 import { LocalDependenciesPlugin } from 'synec'
 
-plugins: [
-    new LocalDependenciesPlugin()
-]
+plugins: [new LocalDependenciesPlugin()]
 ```
 
 Here are the available `options` with their respective defaults.
 
-```
+```js
 new LocalDependenciesPlugin({
-    production: false,
-    watch: true
+  production: false,
+  watch: true,
 })
 ```
 
