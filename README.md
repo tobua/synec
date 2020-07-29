@@ -74,9 +74,16 @@ new LocalDependenciesPlugin({
 
 `watch`: Watch source folder of `localDependencies` for changes and automatically copy them over.
 
-## Future
+## Motivation
+
+If you want to test your plugin or a fork of a popular plugin that you modified locally in your project you can do this by installing it through npm like `npm install ../my-plugin` or list it in dependencies as `"my-plugin": "file:../my-plugin"`. However this will not install the plugin as it would do for a published npm package. It's creating a [symlink](https://en.wikipedia.org/wiki/Symbolic_link) to your project inside `node_modules` and the plugins dependencies will not be installed in your project as it's using the one's found inside the symlink. For me personally this often resulted in problems and didn't adequately mock the environment that would later exist once the plugin is published on npm.
+
+For a quick solution you can also do `npm i --no-save $(npm pack ../my-plugin | tail -1)` which is also what this plugin does and what I used to test it. It will install the plugin as if were published to npm.
+
+## Upcoming Features
 
 - Build local dependency before install
 - Build local dependency in watch mode
 - Watch dependencies of local dependencies
 - Watch `localDependencies` for changes
+- Refresh after plugin installed

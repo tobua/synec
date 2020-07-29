@@ -8,9 +8,14 @@
   "main": "./index.js",
   "type": "module",
   "scripts": {
-    "start": "tsc --watch",
     "release": "standard-version",
     "postinstall": "node ./installation.js"
+  },
+  "dependencies": {
+    "chokidar": "^3.4.1",
+    "parse-gitignore": "^1.0.1",
+    "schema-utils": "^2.7.0",
+    "semver": "^7.3.2"
   },
   "engines": {
     "node": ">=13.2.0"
@@ -23,9 +28,7 @@
     "prettier": "^2.0.5",
     "standard-version": "^8.0.2"
   },
-  "dependencies": {
-    "chokidar": "^3.4.1",
-    "schema-utils": "^2.7.0",
-    "semver": "^7.3.2"
-  }
+  "files": [
+    "**/*.js"
+  ]
 }

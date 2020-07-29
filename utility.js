@@ -1,12 +1,23 @@
-import { join } from 'path'
+import { join, normalize } from 'path'
 import { readFileSync, readdirSync, unlinkSync, copyFileSync } from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
+import parseIgnore from 'parse-gitignore'
+
+const getPackageJson = (packagePath = '') => {
+  const packageJsonPath = join(process.cwd(), packagePath, 'package.json')
+
+  try {
+    return JSON.parse(readFileSync(packageJsonPath, 'utf8'))
+  } catch (error) {
+    console.log(
+      `synec: Error unable to load package.json from ${packageJsonPath}.`
+    )
+  }
+}
 
 export const getLocalDependencies = () => {
-  const { localDependencies } = JSON.parse(
-    readFileSync(join(process.cwd(), 'package.json'), 'utf8')
-  )
+  const { localDependencies } = getPackageJson()
 
   if (!localDependencies) {
     return false
@@ -45,8 +56,8 @@ export const installWithoutSave = async (packagePaths) => {
     .map((path) => `$(npm pack ${path} | tail -1)`)
     .join(' ')
 
-  // NOTE console output silenced
   childProcess.execSync(`npm install --no-save ${tarballs}`, {
+    // Silences console output.
     stdio: 'ignore',
   })
 
@@ -63,30 +74,89 @@ export const installWithoutSave = async (packagePaths) => {
   console.log('synec: localDependencies installed!')
 }
 
-export const watchLocalDependencies = (packagePaths) => {
+const loadAndParseNpmIgnore = (packagePath) => {
+  try {
+    return parseIgnore(
+      readFileSync(join(process.cwd(), packagePath, '.npmignore'), 'utf8')
+    )
+  } catch (_) {}
+}
+
+const getWatchPaths = (packagePath) => {
   // npm dotdir-regex / dotfile-regex
   const dotDirRegex = /(?:^|[\\\/])(\.(?!\.)[^\\\/]+)[\\\/]/
   const dotFileRegex = /(?:^|[\\\/])(\.(?!\.)[^\\\/]+)$/
+  const alwaysIgnored = [/node_modules/, dotDirRegex, dotFileRegex]
+  const { files, main } = getPackageJson(packagePath)
+  const npmIgnore = loadAndParseNpmIgnore(packagePath)
 
-  const watcher = chokidar.watch(packagePaths, {
-    // Watching node_modules is unnecessary, dot-stuff should be ignored anyways.
-    ignored: [/node_modules/, dotDirRegex, dotFileRegex],
-    // Files already there have been copied by installation.
-    ignoreInitial: true,
+  const filesMissing = !files || !Array.isArray(files) || files.length < 1
+  const npmIgnoreMissing =
+    !npmIgnore || !Array.isArray(npmIgnore) || npmIgnore.length < 1
+
+  if (filesMissing && npmIgnoreMissing) {
+    console.log(
+      'synec: Warning "files" entry in package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm.'
+    )
+    return ['.', alwaysIgnored]
+  }
+
+  // package.json and main are always included by npm.
+  let filesToInclude = ['package.json']
+
+  if (main) {
+    try {
+      filesToInclude.push(normalize(main))
+    } catch (_) {}
+  }
+
+  let filesToIgnore = []
+
+  // Preferring files over npmignore.
+  if (!filesMissing) {
+    filesToInclude = filesToInclude.concat(files)
+  } else {
+    filesToInclude = ['.']
+    filesToIgnore = filesToIgnore.concat(npmIgnore)
+  }
+
+  filesToIgnore = filesToIgnore.concat(alwaysIgnored)
+
+  return [filesToInclude, filesToIgnore]
+}
+
+export const watchLocalDependencies = (packagePaths) => {
+  const watchers = packagePaths.map((packagePath) => {
+    const [includedPaths, ignoredPaths] = getWatchPaths(packagePath)
+
+    return chokidar.watch(includedPaths, {
+      // Watching node_modules is unnecessary, dot-stuff should be ignored anyways.
+      ignored: ignoredPaths,
+      // Files already there have been copied by installation.
+      ignoreInitial: true,
+      // The packagePath will be the CWD to watch from.
+      cwd: packagePath,
+    })
   })
 
   const copyFile = (filePath) => {
     console.log(`synec: copying ${filePath}`)
     const destinationPath = filePath.replace(/^\.\./, 'node_modules')
-    copyFileSync(filePath, destinationPath)
+    try {
+      copyFileSync(filePath, destinationPath)
+    } catch (_) {}
   }
 
   const removeFile = (filePath) => {
     console.log(`synec: removing ${filePath}`)
-    unlinkSync(filePath)
+    try {
+      unlinkSync(filePath)
+    } catch (_) {}
   }
 
-  watcher.on('add', copyFile).on('change', copyFile).on('unlink', removeFile)
+  watchers.forEach((watcher) =>
+    watcher.on('add', copyFile).on('change', copyFile).on('unlink', removeFile)
+  )
 }
 
 /*
