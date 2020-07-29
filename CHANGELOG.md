@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/tobua/synec/compare/v0.1.0...v0.1.1) (2020-07-29)
+
+
+### Bug Fixes
+
+* **watcher:** only watch published files ([66a4f3b](https://github.com/tobua/synec/commit/66a4f3bda487d842f04ba0a12b79e36d14b5c50f))
+
 ## 0.1.0 (2020-07-24)
 
 
