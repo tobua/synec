@@ -1,34 +1,53 @@
 {
   "name": "synec",
   "version": "0.1.1",
+  "repository": "github:tobua/synec",
   "license": "MIT",
   "author": "Matthias Giger",
-  "repository": "github:tobua/synec",
-  "bin": "./cli/index.js",
-  "main": "./index.js",
   "type": "module",
+  "main": "dist/index.js",
+  "source": "index.js",
+  "bin": "./cli/index.js",
+  "files": [
+    "**/*.js"
+  ],
   "scripts": {
-    "release": "standard-version",
-    "postinstall": "node ./installation.js"
+    "postinstall": "node ./installation.js",
+    "lint": "padua lint",
+    "publish": "padua publish",
+    "update": "padua update"
+  },
+  "prettier": "padua/configuration/.prettierrc.json",
+  "eslintConfig": {
+    "extends": "./node_modules/padua/configuration/eslint.cjs"
+  },
+  "jest": {
+    "globals": {
+      "ts-jest": {
+        "tsConfig": "./node_modules/padua/configuration/tsconfig.json"
+      }
+    },
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest",
+      "^.+\\.jsx?$": [
+        "babel-jest",
+        {
+          "configFile": "./node_modules/padua/configuration/.babelrc"
+        }
+      ]
+    }
   },
   "dependencies": {
     "chokidar": "^3.4.1",
+    "logua": "^1.0.1",
     "parse-gitignore": "^1.0.1",
     "schema-utils": "^2.7.0",
     "semver": "^7.3.2"
   },
-  "engines": {
-    "node": ">=13.2.0"
-  },
-  "prettier": {
-    "singleQuote": true,
-    "semi": false
-  },
   "devDependencies": {
-    "prettier": "^2.0.5",
-    "standard-version": "^8.0.2"
+    "padua": "0.0.6"
   },
-  "files": [
-    "**/*.js"
-  ]
+  "engines": {
+    "node": ">= 13.2.0"
+  }
 }

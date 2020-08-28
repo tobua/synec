@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import childProcess from 'child_process'
-import { getLocalDependencies, installWithoutSave } from './../utility.js'
+import { getLocalDependencies, installWithoutSave } from "../utility.js"
 import { getOptions } from './options.js'
 
 const options = getOptions()

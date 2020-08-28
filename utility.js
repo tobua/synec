@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, unlinkSync, copyFileSync } from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
+import log from 'logua'
 
 const getPackageJson = (packagePath = '') => {
   const packageJsonPath = join(process.cwd(), packagePath, 'package.json')
@@ -10,9 +11,7 @@ const getPackageJson = (packagePath = '') => {
   try {
     return JSON.parse(readFileSync(packageJsonPath, 'utf8'))
   } catch (error) {
-    console.log(
-      `synec: Error unable to load package.json from ${packageJsonPath}.`
-    )
+    log(`Unable to load package.json from ${packageJsonPath}`, 'error')
   }
 }
 
@@ -33,11 +32,9 @@ export const getLocalDependencies = () => {
     if (localDependencies.length < 1) {
       return false
     }
-  } else {
-    if (Object.keys(localDependencies).length < 1) {
+  } else if (Object.keys(localDependencies).length < 1) {
       return false
     }
-  }
 
   // We only need the paths to the packages
   if (Array.isArray(localDependencies)) {
@@ -71,7 +68,7 @@ export const installWithoutSave = async (packagePaths) => {
   process.stdout.clearLine()
   process.stdout.cursorTo(0)
 
-  console.log('synec: localDependencies installed!')
+  log('localDependencies installed')
 }
 
 const loadAndParseNpmIgnore = (packagePath) => {
@@ -79,13 +76,15 @@ const loadAndParseNpmIgnore = (packagePath) => {
     return parseIgnore(
       readFileSync(join(process.cwd(), packagePath, '.npmignore'), 'utf8')
     )
-  } catch (_) {}
+  } catch (_) {
+    // Ignored
+  }
 }
 
 const getWatchPaths = (packagePath) => {
   // npm dotdir-regex / dotfile-regex
-  const dotDirRegex = /(?:^|[\\\/])(\.(?!\.)[^\\\/]+)[\\\/]/
-  const dotFileRegex = /(?:^|[\\\/])(\.(?!\.)[^\\\/]+)$/
+  const dotDirRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)[\\/]/
+  const dotFileRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)$/
   const alwaysIgnored = [/node_modules/, dotDirRegex, dotFileRegex]
   const { files, main } = getPackageJson(packagePath)
   const npmIgnore = loadAndParseNpmIgnore(packagePath)
@@ -95,8 +94,9 @@ const getWatchPaths = (packagePath) => {
     !npmIgnore || !Array.isArray(npmIgnore) || npmIgnore.length < 1
 
   if (filesMissing && npmIgnoreMissing) {
-    console.log(
-      'synec: Warning "files" entry in package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm.'
+    log(
+      '"files" entry in package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm',
+      'warning'
     )
     return ['.', alwaysIgnored]
   }
@@ -107,7 +107,9 @@ const getWatchPaths = (packagePath) => {
   if (main) {
     try {
       filesToInclude.push(normalize(main))
-    } catch (_) {}
+    } catch (_) {
+      // Ignore
+    }
   }
 
   let filesToIgnore = []
@@ -140,18 +142,22 @@ export const watchLocalDependencies = (packagePaths) => {
   })
 
   const copyFile = (filePath) => {
-    console.log(`synec: copying ${filePath}`)
+    log(`Copying ${filePath}`)
     const destinationPath = filePath.replace(/^\.\./, 'node_modules')
     try {
       copyFileSync(filePath, destinationPath)
-    } catch (_) {}
+    } catch (_) {
+      // Ignored
+    }
   }
 
   const removeFile = (filePath) => {
-    console.log(`synec: removing ${filePath}`)
+    log(`Removing ${filePath}`)
     try {
       unlinkSync(filePath)
-    } catch (_) {}
+    } catch (_) {
+      // Ignored
+    }
   }
 
   watchers.forEach((watcher) =>
