@@ -5,16 +5,17 @@
   "license": "MIT",
   "author": "Matthias Giger",
   "type": "module",
-  "main": "dist/index.js",
-  "source": "index.js",
+  "main": "./index.js",
+  "source": "./index.js",
   "bin": "./cli/index.js",
+  "types": "./index.d.ts",
   "files": [
     "**/*.js"
   ],
   "scripts": {
     "postinstall": "node ./installation.js",
     "lint": "padua lint",
-    "publish": "padua publish",
+    "release": "padua publish",
     "update": "padua update"
   },
   "prettier": "padua/configuration/.prettierrc.json",
@@ -38,10 +39,10 @@
     }
   },
   "dependencies": {
-    "chokidar": "^3.4.1",
-    "logua": "^1.0.1",
+    "chokidar": "^3.4.2",
+    "logua": "^1.0.7",
     "parse-gitignore": "^1.0.1",
-    "schema-utils": "^2.7.0",
+    "schema-utils": "^2.7.1",
     "semver": "^7.3.2"
   },
   "devDependencies": {

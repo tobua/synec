@@ -1,5 +1,7 @@
 import semver from 'semver'
-import log from 'logua'
+import log, { configure } from 'logua'
+
+configure({ name: 'synec', color: 'yellow' })
 
 // Requires node >= 13.2.0 for ES modules.
 if (semver.lt(process.version, '13.2.0')) {

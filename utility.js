@@ -33,8 +33,8 @@ export const getLocalDependencies = () => {
       return false
     }
   } else if (Object.keys(localDependencies).length < 1) {
-      return false
-    }
+    return false
+  }
 
   // We only need the paths to the packages
   if (Array.isArray(localDependencies)) {
@@ -47,7 +47,7 @@ export const getLocalDependencies = () => {
 
 export const installWithoutSave = async (packagePaths) => {
   // Without newline at first, so that this line will be overridden on success.
-  process.stdout.write('synec: Installing localDependencies...')
+  process.stdout.write('Installing localDependencies...')
 
   const tarballs = packagePaths
     .map((path) => `$(npm pack ${path} | tail -1)`)
@@ -164,57 +164,3 @@ export const watchLocalDependencies = (packagePaths) => {
     watcher.on('add', copyFile).on('change', copyFile).on('unlink', removeFile)
   )
 }
-
-/*
-
-Previous unsuccessful approaches, kept as reference for upcoming features:
-
-export const installLocalDependency = async (name, packagePath) => {
-  console.log(`synec: Installing ${name} from ${packagePath}.`)
-
-  const tarballPath = join(process.cwd(), `${name}.tgz`)
-  const destinationPackagePath = join(process.cwd(), 'node_modules', name)
-
-  await pacote.tarball.file(packagePath, tarballPath)
-  await pacote.extract(tarballPath, destinationPackagePath)
-  unlinkSync(tarballPath)
-  console.log('unlinked')
-}
-
-export const installDependenciesIfMissing = async (name, packagePath) => {
-  const manifest = await pacote.manifest(packagePath)
-  console.log(`synec: Installing dependencies for ${name}.`)
-
-  const dependencies = manifest.dependencies || {}
-  const peerDependencies = manifest.peerDependencies || {}
-
-  const requiredDependencies = Object.assign(dependencies, peerDependencies)
-
-  for (const name of Object.keys(requiredDependencies)) {
-    const version = requiredDependencies[name]
-    const isInstalled = await isDependencyInstalledLocally(name, version)
-
-    if (!isInstalled) {
-      console.log('now installing', name)
-      childProcess.execSync(`npm install --no-save ${name}@${version}`)
-      console.log('installation done', name)
-    } else {
-      console.log('already installed', name)
-    }
-  }
-}
-
-export const isDependencyInstalledLocally = async (packageName, version) => {
-  const packagePath = join(process.cwd(), 'node_modules', packageName)
-  let manifest
-
-  try {
-    manifest = await pacote.manifest(packagePath)
-  } catch (error) {
-    return false
-  }
-
-  return semver.satisfies(manifest.version, version)
-}
-
-*/
