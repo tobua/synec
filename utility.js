@@ -3,7 +3,9 @@ import { readFileSync, readdirSync, unlinkSync, copyFileSync } from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
-import log from 'logua'
+import { create } from 'logua'
+
+export const log = create('synec', 'yellow')
 
 const getPackageJson = (packagePath = '') => {
   const packageJsonPath = join(process.cwd(), packagePath, 'package.json')

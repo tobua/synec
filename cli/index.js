@@ -1,11 +1,8 @@
 #!/usr/bin/env node
 
 import childProcess from 'child_process'
-import { getLocalDependencies, installWithoutSave } from "../utility.js"
+import { getLocalDependencies, installWithoutSave } from '../utility.js'
 import { getOptions } from './options.js'
-import { configure } from 'logua'
-
-configure({ name: 'synec', color: 'yellow' })
 
 const options = getOptions()
 

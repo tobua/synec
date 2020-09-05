@@ -40,13 +40,13 @@
   },
   "dependencies": {
     "chokidar": "^3.4.2",
-    "logua": "^1.0.7",
+    "logua": "^2.0.0",
     "parse-gitignore": "^1.0.1",
     "schema-utils": "^2.7.1",
     "semver": "^7.3.2"
   },
   "devDependencies": {
-    "padua": "0.0.6"
+    "padua": "0.0.8"
   },
   "engines": {
     "node": ">= 13.2.0"
