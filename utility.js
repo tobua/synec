@@ -88,7 +88,7 @@ const getWatchPaths = (packagePath) => {
   const dotDirRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)[\\/]/
   const dotFileRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)$/
   const alwaysIgnored = [/node_modules/, dotDirRegex, dotFileRegex]
-  const { files, main } = getPackageJson(packagePath)
+  const { files, main, name } = getPackageJson(packagePath)
   const npmIgnore = loadAndParseNpmIgnore(packagePath)
 
   const filesMissing = !files || !Array.isArray(files) || files.length < 1
@@ -100,7 +100,7 @@ const getWatchPaths = (packagePath) => {
       '"files" entry in package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm',
       'warning'
     )
-    return ['.', alwaysIgnored]
+    return ['.', alwaysIgnored, name]
   }
 
   // package.json and main are always included by npm.
@@ -126,12 +126,15 @@ const getWatchPaths = (packagePath) => {
 
   filesToIgnore = filesToIgnore.concat(alwaysIgnored)
 
-  return [filesToInclude, filesToIgnore]
+  return [filesToInclude, filesToIgnore, name]
 }
 
 export const watchLocalDependencies = (packagePaths) => {
+  const destinationPackages = new Map()
   const watchers = packagePaths.map((packagePath) => {
-    const [includedPaths, ignoredPaths] = getWatchPaths(packagePath)
+    const [includedPaths, ignoredPaths, name] = getWatchPaths(packagePath)
+
+    destinationPackages.set(packagePath, `node_modules/${name}`)
 
     return chokidar.watch(includedPaths, {
       // Watching node_modules is unnecessary, dot-stuff should be ignored anyways.
@@ -143,26 +146,29 @@ export const watchLocalDependencies = (packagePaths) => {
     })
   })
 
-  const copyFile = (filePath) => {
+  const copyFile = (from, to, filePath) => {
     log(`Copying ${filePath}`)
-    const destinationPath = filePath.replace(/^\.\./, 'node_modules')
     try {
-      copyFileSync(filePath, destinationPath)
+      copyFileSync(join(from, filePath), join(to, filePath))
     } catch (_) {
-      // Ignored
+      log(`Copying ${filePath} failed`, 'warning')
     }
   }
 
-  const removeFile = (filePath) => {
+  const removeFile = (to, filePath) => {
     log(`Removing ${filePath}`)
     try {
-      unlinkSync(filePath)
+      unlinkSync(join(to, filePath))
     } catch (_) {
-      // Ignored
+      log(`Removing ${filePath} failed`, 'warning')
     }
   }
 
-  watchers.forEach((watcher) =>
-    watcher.on('add', copyFile).on('change', copyFile).on('unlink', removeFile)
-  )
+  watchers.forEach((watcher) => {
+    const from = join(process.cwd(), watcher.options.cwd)
+    const to = join(process.cwd(), destinationPackages.get(watcher.options.cwd))
+    const copyHandler = copyFile.bind(null, from, to)
+    const removeHandler = removeFile.bind(null, to)
+    watcher.on('add', copyHandler).on('change', copyHandler).on('unlink', removeHandler)
+  })
 }
