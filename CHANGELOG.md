@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.7](https://github.com/tobua/synec/compare/v0.1.6...v0.1.7) (2020-09-16)
+
+
+### Features
+
+* **log:** group copy and remove messages ([736025e](https://github.com/tobua/synec/commit/736025e29c7edfd6b90e14cdf673046d4ef9f5df))
+
 ### [0.1.6](https://github.com/tobua/synec/compare/v0.1.5...v0.1.6) (2020-09-06)
 
 
