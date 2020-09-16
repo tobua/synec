@@ -1,6 +1,7 @@
 {
   "name": "synec",
   "version": "0.1.6",
+  "description": "Test local npm packages in projects.",
   "repository": "github:tobua/synec",
   "license": "MIT",
   "author": "Matthias Giger",
@@ -13,10 +14,7 @@
     "**/*.js"
   ],
   "scripts": {
-    "postinstall": "node ./installation.js",
-    "lint": "padua lint",
-    "release": "padua publish",
-    "update": "padua update"
+    "postinstall": "node ./installation.js"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {
@@ -40,13 +38,13 @@
   },
   "dependencies": {
     "chokidar": "^3.4.2",
-    "logua": "^2.0.0",
+    "logua": "^2.1.1",
     "parse-gitignore": "^1.0.1",
     "schema-utils": "^2.7.1",
     "semver": "^7.3.2"
   },
   "devDependencies": {
-    "padua": "0.0.8"
+    "padua": "0.0.9"
   },
   "engines": {
     "node": ">= 13.2.0"

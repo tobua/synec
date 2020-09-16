@@ -147,7 +147,10 @@ export const watchLocalDependencies = (packagePaths) => {
   })
 
   const copyFile = (from, to, filePath) => {
-    log(`Copying ${filePath}`)
+    log(`Copying ${filePath}`, {
+      group: 'copy-synec',
+      message: (count) => `Copying ${count} files`,
+    })
     try {
       copyFileSync(join(from, filePath), join(to, filePath))
     } catch (_) {
@@ -156,7 +159,10 @@ export const watchLocalDependencies = (packagePaths) => {
   }
 
   const removeFile = (to, filePath) => {
-    log(`Removing ${filePath}`)
+    log(`Removing ${filePath}`, {
+      group: 'remove-synec',
+      message: (count) => `Removing ${count} files`,
+    })
     try {
       unlinkSync(join(to, filePath))
     } catch (_) {
@@ -169,6 +175,9 @@ export const watchLocalDependencies = (packagePaths) => {
     const to = join(process.cwd(), destinationPackages.get(watcher.options.cwd))
     const copyHandler = copyFile.bind(null, from, to)
     const removeHandler = removeFile.bind(null, to)
-    watcher.on('add', copyHandler).on('change', copyHandler).on('unlink', removeHandler)
+    watcher
+      .on('add', copyHandler)
+      .on('change', copyHandler)
+      .on('unlink', removeHandler)
   })
 }
