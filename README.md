@@ -61,6 +61,10 @@ import { LocalDependenciesPlugin } from 'synec'
 plugins: [new LocalDependenciesPlugin()]
 ```
 
+Note: Currently not compatible with [webpack 4](https://github.com/webpack/webpack-cli/issues/1622), since the `webpack-cli` is still using the old require
+for CommonJS. Probably, until version 1 of this package that's fixed. The CLI and
+programmatic version of webpack will work fine already.
+
 Here are the available `options` with their respective defaults.
 
 ```js
