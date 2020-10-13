@@ -1,0 +1,10 @@
+{
+  "name": "my-app",
+  "type": "module",
+  "dependencies": {
+    "react": "^16.13.1"
+  },
+  "localDependencies": {
+    "my-plugin": "../my-plugin"
+  }
+}

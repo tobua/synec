@@ -91,3 +91,7 @@ For a quick solution you can also do `npm i --no-save $(npm pack ../my-plugin | 
 - Watch dependencies of local dependencies
 - Watch `localDependencies` for changes
 - Refresh after plugin installed
+
+## Similar
+
+This plugin is similar and partially inspired by [relative-deps](https://github.com/mweststrate/relative-deps) but provides additional features such as installing plugin dependencies, watching for changes and integration into build tools which are deemed essential for optimal developer experience.
