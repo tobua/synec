@@ -56,6 +56,7 @@ export const installWithoutSave = async (packagePaths) => {
     .join(' ')
 
   childProcess.execSync(`npm install --no-save ${tarballs}`, {
+    cwd: process.cwd(),
     // Silences console output.
     stdio: 'ignore',
   })
@@ -64,7 +65,7 @@ export const installWithoutSave = async (packagePaths) => {
 
   readdirSync(process.cwd())
     .filter((filePath) => filePath.endsWith('.tgz'))
-    .map((filePath) => unlinkSync(filePath))
+    .map((filePath) => unlinkSync(join(process.cwd(), filePath)))
 
   // Removes previous log.
   process.stdout.clearLine()
@@ -83,7 +84,7 @@ const loadAndParseNpmIgnore = (packagePath) => {
   }
 }
 
-const getWatchPaths = (packagePath) => {
+export const getWatchPaths = (packagePath) => {
   // npm dotdir-regex / dotfile-regex
   const dotDirRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)[\\/]/
   const dotFileRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)$/
@@ -104,6 +105,7 @@ const getWatchPaths = (packagePath) => {
   }
 
   // package.json and main are always included by npm.
+  // README/CHANGELOG files not required for this plugin to work properly.
   let filesToInclude = ['package.json']
 
   if (main) {
