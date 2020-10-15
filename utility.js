@@ -1,9 +1,10 @@
 import { join, normalize } from 'path'
-import { readFileSync, readdirSync, unlinkSync, copyFileSync } from 'fs'
+import { readFileSync, readdirSync, unlinkSync, copyFileSync, existsSync } from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
 import { create } from 'logua'
+import checkDependencies from 'check-dependencies'
 
 export const log = create('synec', 'yellow')
 
@@ -47,7 +48,37 @@ export const getLocalDependencies = () => {
   return Object.keys(localDependencies).map((name) => localDependencies[name])
 }
 
-export const installWithoutSave = async (packagePaths) => {
+const appDependenciesInstalled = () => {
+  const hasNodeModules = existsSync(join(process.cwd(), 'node_modules'))
+  const hasLockFile = existsSync(join(process.cwd(), 'package-lock.json'))
+
+  if (!hasNodeModules || !hasLockFile) {
+    log('Dependencies not installed: installing')
+    return false
+  }
+
+  const { depsWereOk } = checkDependencies.sync({ packageDir: process.cwd(), verbose: false })
+
+  if (!depsWereOk) {
+    log('Dependencies out-of-date: reinstalling')
+  }
+
+  return depsWereOk
+}
+
+export const installAppDependencies = () => {
+  if (appDependenciesInstalled()) {
+    return
+  }
+
+  childProcess.execSync(`npm install`, {
+    cwd: process.cwd(),
+    // Silences console output.
+    stdio: 'ignore',
+  })
+}
+
+export const installWithoutSave = (packagePaths) => {
   // Without newline at first, so that this line will be overridden on success.
   process.stdout.write('Installing localDependencies...')
 

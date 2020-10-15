@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import childProcess from 'child_process'
-import { getLocalDependencies, installWithoutSave } from '../utility.js'
+import { getLocalDependencies, installWithoutSave, installAppDependencies } from '../utility.js'
 import { getOptions } from './options.js'
 
 const options = getOptions()
@@ -16,6 +16,7 @@ if (!localDependencies) {
   process.exit()
 }
 
+installAppDependencies()
 installWithoutSave(localDependencies)
 
 if (!options.watch) {

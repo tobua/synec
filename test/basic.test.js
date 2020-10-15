@@ -1,8 +1,9 @@
 import { existsSync, readdirSync } from 'fs'
 import { join } from 'path'
 import rimraf from 'rimraf'
+import childProcess from 'child_process'
 import { writeFile, readFile } from './utility/file.js'
-import { getLocalDependencies, getWatchPaths, installWithoutSave } from '../utility.js'
+import { getLocalDependencies, getWatchPaths, installWithoutSave, installAppDependencies } from '../utility.js'
 
 const CWD = process.cwd()
 const cwdSpy = jest.spyOn(process, 'cwd')
@@ -62,21 +63,70 @@ test('Fallback to .npmignore if files entry is missing.', () => {
     writeFile('package.json', { ...pkg, files: filesEntry }, { json: true })
 })
 
-test(`Plugin including it's dependencies is installed.`, async () => {
+test('App dependencies are installed if missing when using npx.', () => {
     setCwd('test/fixture/my-app')
-    await installWithoutSave([myPluginRelativePath])
+
+    installAppDependencies()
 
     // npm install done.
     expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules'))).toEqual(true)
-    // TODO expect(existsSync(join(CWD, 'test/fixture/my-app/package-lock.json'))).toEqual(true)
+    expect(existsSync(join(CWD, 'test/fixture/my-app/package-lock.json'))).toEqual(true)
+    // Dependencies installed.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/react'))).toEqual(true)
+})
+
+test(`Reinstalls if dependencies are out-of-date.`, () => {
+    setCwd('test/fixture/my-app')
+    installAppDependencies()
+
+    // Dependencies installed.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/react'))).toEqual(true)
+
+    const initialReactVersion = readFile('node_modules/react/package.json', { json: true }).version
+
+    // Installing an old react version.
+    childProcess.execSync(`npm install --no-save react@15`, {
+        cwd: process.cwd(),
+        stdio: 'ignore',
+    })
+
+    const downgradedReactVersion = readFile('node_modules/react/package.json', { json: true }).version
+
+    expect(initialReactVersion).not.toEqual(downgradedReactVersion)
+
+    installAppDependencies()
+
+    const upgradedReactVersion = readFile('node_modules/react/package.json', { json: true }).version
+
+    expect(upgradedReactVersion).toEqual(initialReactVersion)
+})
+
+test(`Plugin including it's dependencies is installed.`, () => {
+    setCwd('test/fixture/my-app')
+    installWithoutSave([myPluginRelativePath])
+
     // Plugin installed.
     expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/my-plugin'))).toEqual(true)
     expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/my-plugin/index.js'))).toEqual(true)
     // Plugin dependencies installed.
     expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/webpack'))).toEqual(true)
-    // App dependencies installed.
-    // TODO expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/react'))).toEqual(true)
 
     // Tarballs are removed.
     expect(readdirSync(process.cwd()).filter((filePath) => filePath.endsWith('.tgz')).length).toEqual(0)
+})
+
+test('Everything is installed.', () => {
+    setCwd('test/fixture/my-app')
+    installAppDependencies()
+    installWithoutSave([myPluginRelativePath])
+
+    // npm install done.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules'))).toEqual(true)
+    expect(existsSync(join(CWD, 'test/fixture/my-app/package-lock.json'))).toEqual(true)
+    // Plugin installed.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/my-plugin'))).toEqual(true)
+    // Dependencies installed.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/react'))).toEqual(true)
+    // Plugin dependencies installed.
+    expect(existsSync(join(CWD, 'test/fixture/my-app/node_modules/webpack'))).toEqual(true)
 })
