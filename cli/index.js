@@ -17,7 +17,7 @@ if (!localDependencies) {
 }
 
 installAppDependencies()
-installWithoutSave(localDependencies)
+await installWithoutSave(localDependencies)
 
 if (!options.watch) {
   process.exit()

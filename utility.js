@@ -1,10 +1,11 @@
 import { join, normalize } from 'path'
-import { readFileSync, readdirSync, unlinkSync, copyFileSync, existsSync } from 'fs'
+import { readFileSync, readdirSync, unlinkSync, copyFileSync, existsSync, writeFileSync } from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
 import { create } from 'logua'
 import checkDependencies from 'check-dependencies'
+import { hashElement } from 'folder-hash'
 
 export const log = create('synec', 'yellow')
 
@@ -78,11 +79,52 @@ export const installAppDependencies = () => {
   })
 }
 
-export const installWithoutSave = (packagePaths) => {
-  // Without newline at first, so that this line will be overridden on success.
-  process.stdout.write('Installing localDependencies...')
+const generateHash = async (packagePath) => {
+  const { name } = JSON.parse(readFileSync(join(process.cwd(), packagePath, 'package.json')))
 
-  const tarballs = packagePaths
+  const hashFilePath = join(process.cwd(), 'node_modules', name, '.synec-hash')
+
+  const { hash } = await hashElement(join(process.cwd(), packagePath), {
+    folders: {
+      exclude: ['node_modules', 'test', '.*'],
+    },
+    files: {
+      include: ['*.js', '**/*.js']
+    }
+  })
+
+  writeFileSync(hashFilePath, hash)
+}
+
+const packageNeedsUpdate = async (packagePath) => {
+  const { name } = JSON.parse(readFileSync(join(process.cwd(), packagePath, 'package.json')))
+
+  if (!existsSync(join(process.cwd(), 'node_modules', name))) {
+    return true
+  }
+
+  const hashFilePath = join(process.cwd(), 'node_modules', name, '.synec-hash')
+
+  const { hash } = await hashElement(join(process.cwd(), packagePath), {
+    folders: {
+      exclude: ['node_modules', 'test', '.*']
+    },
+    files: {
+      include: ['*.js', '**/*.js']
+    }
+  })
+
+  let cachedHash
+
+  if (existsSync(hashFilePath)) {
+    cachedHash = readFileSync(hashFilePath, 'utf8')
+  }
+
+  return !cachedHash || cachedHash !== hash
+}
+
+const installTarballs = async (pathsToUpdate) => {
+  const tarballs = pathsToUpdate
     .map((path) => `$(npm pack ${path} | tail -1)`)
     .join(' ')
 
@@ -97,6 +139,20 @@ export const installWithoutSave = (packagePaths) => {
   readdirSync(process.cwd())
     .filter((filePath) => filePath.endsWith('.tgz'))
     .map((filePath) => unlinkSync(join(process.cwd(), filePath)))
+
+  return Promise.all(pathsToUpdate.map(generateHash))
+}
+
+export const installWithoutSave = async (packagePaths) => {
+  // Without newline at first, so that this line will be overridden on success.
+  process.stdout.write('Installing localDependencies...')
+
+  let pathsToUpdate = await Promise.all(packagePaths.map(packageNeedsUpdate))
+  pathsToUpdate = packagePaths.filter((_, index) => pathsToUpdate[index])
+
+  if (pathsToUpdate.length) {
+    await installTarballs(pathsToUpdate)
+  }
 
   // Removes previous log.
   process.stdout.clearLine()

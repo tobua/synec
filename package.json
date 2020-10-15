@@ -14,6 +14,7 @@
   "dependencies": {
     "check-dependencies": "^1.1.0",
     "chokidar": "^3.4.3",
+    "folder-hash": "^4.0.0",
     "logua": "^2.1.1",
     "parse-gitignore": "^1.0.1",
     "schema-utils": "^3.0.0",

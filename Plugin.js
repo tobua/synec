@@ -41,8 +41,8 @@ export const LocalDependenciesPlugin = class {
     }
 
     // Initial install of local dependencies.
-    compiler.hooks.environment.tap(pluginName, () => {
-      installWithoutSave(localDependencies)
+    compiler.hooks.environment.tap(pluginName, async () => {
+      await installWithoutSave(localDependencies)
 
       if (!this.options.watch) {
         return

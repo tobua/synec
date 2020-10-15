@@ -1,7 +1,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
-export const readFile = (name, options) => {
+export const readFile = (name, options = {}) => {
     const path = join(process.cwd(), name)
 
     let content = readFileSync(path, 'utf8')
@@ -13,7 +13,7 @@ export const readFile = (name, options) => {
     return content
 }
 
-export const writeFile = (name, content, options) => {
+export const writeFile = (name, content, options = {}) => {
     const path = join(process.cwd(), name)
     let writeContent = content
 
