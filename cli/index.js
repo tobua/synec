@@ -7,20 +7,20 @@ import { getOptions } from './options.js'
 const options = getOptions()
 
 if (process.env.NODE_ENV === 'production' && !options.production) {
-  process.exit()
+  process.exit(0)
 }
 
 const localDependencies = getLocalDependencies()
 
 if (!localDependencies) {
-  process.exit()
+  process.exit(0)
 }
 
 installAppDependencies()
 await installWithoutSave(localDependencies)
 
 if (!options.watch) {
-  process.exit()
+  process.exit(0)
 }
 
 // Start background process that will still watch but exit to next command.
@@ -28,4 +28,4 @@ childProcess.spawn(process.argv[0], ['node_modules/synec/cli/watch.js'], {
   stdio: 'inherit',
 })
 
-process.exit()
+process.exit(0)
