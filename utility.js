@@ -15,7 +15,7 @@ const getPackageJson = (packagePath = '') => {
   try {
     return JSON.parse(readFileSync(packageJsonPath, 'utf8'))
   } catch (error) {
-    log(`Unable to load package.json from ${packageJsonPath}`, 'error')
+    return log(`Unable to load package.json from ${packageJsonPath}`, 'error')
   }
 }
 
@@ -128,6 +128,7 @@ const installTarballs = async (pathsToUpdate) => {
     .map((path) => `$(npm pack ${path} | tail -1)`)
     .join(' ')
 
+  // Will prune unlisted tarballs or dependencies https://github.com/npm/npm/issues/16853
   childProcess.execSync(`npm install --no-save ${tarballs}`, {
     cwd: process.cwd(),
     // Silences console output.
@@ -168,6 +169,7 @@ const loadAndParseNpmIgnore = (packagePath) => {
     )
   } catch (_) {
     // Ignored
+    return null
   }
 }
 
@@ -222,8 +224,11 @@ export const watchLocalDependencies = (packagePaths) => {
   const destinationPackages = new Map()
   const watchers = packagePaths.map((packagePath) => {
     const [includedPaths, ignoredPaths, name] = getWatchPaths(packagePath)
+    const absolutePackagePath = join(process.cwd(), packagePath)
+    const absoluteDestinationPath = join(process.cwd(), `node_modules/${name}`)
 
-    destinationPackages.set(packagePath, `node_modules/${name}`)
+    // Used to access destination from different watchers later.
+    destinationPackages.set(absolutePackagePath, absoluteDestinationPath)
 
     return chokidar.watch(includedPaths, {
       // Watching node_modules is unnecessary, dot-stuff should be ignored anyways.
@@ -231,7 +236,7 @@ export const watchLocalDependencies = (packagePaths) => {
       // Files already there have been copied by installation.
       ignoreInitial: true,
       // The packagePath will be the CWD to watch from.
-      cwd: packagePath,
+      cwd: absolutePackagePath,
     })
   })
 
@@ -260,8 +265,8 @@ export const watchLocalDependencies = (packagePaths) => {
   }
 
   watchers.forEach((watcher) => {
-    const from = join(process.cwd(), watcher.options.cwd)
-    const to = join(process.cwd(), destinationPackages.get(watcher.options.cwd))
+    const from = watcher.options.cwd
+    const to = destinationPackages.get(watcher.options.cwd)
     const copyHandler = copyFile.bind(null, from, to)
     const removeHandler = removeFile.bind(null, to)
     watcher
@@ -269,4 +274,7 @@ export const watchLocalDependencies = (packagePaths) => {
       .on('change', copyHandler)
       .on('unlink', removeHandler)
   })
+
+  // Stop watching paths.
+  return () => watchers.forEach((watcher) => watcher.close())
 }
