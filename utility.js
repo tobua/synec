@@ -1,5 +1,12 @@
 import { join, normalize } from 'path'
-import { readFileSync, readdirSync, unlinkSync, copyFileSync, existsSync, writeFileSync } from 'fs'
+import {
+  readFileSync,
+  readdirSync,
+  unlinkSync,
+  copyFileSync,
+  existsSync,
+  writeFileSync,
+} from 'fs'
 import childProcess from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
@@ -58,7 +65,10 @@ const appDependenciesInstalled = () => {
     return false
   }
 
-  const { depsWereOk } = checkDependencies.sync({ packageDir: process.cwd(), verbose: false })
+  const { depsWereOk } = checkDependencies.sync({
+    packageDir: process.cwd(),
+    verbose: false,
+  })
 
   if (!depsWereOk) {
     log('Dependencies out-of-date: reinstalling')
@@ -80,7 +90,9 @@ export const installAppDependencies = () => {
 }
 
 const generateHash = async (packagePath) => {
-  const { name } = JSON.parse(readFileSync(join(process.cwd(), packagePath, 'package.json')))
+  const { name } = JSON.parse(
+    readFileSync(join(process.cwd(), packagePath, 'package.json'))
+  )
 
   const hashFilePath = join(process.cwd(), 'node_modules', name, '.synec-hash')
 
@@ -89,15 +101,17 @@ const generateHash = async (packagePath) => {
       exclude: ['node_modules', 'test', '.*'],
     },
     files: {
-      include: ['*.js', '**/*.js']
-    }
+      include: ['*.js', '**/*.js'],
+    },
   })
 
   writeFileSync(hashFilePath, hash)
 }
 
 const packageNeedsUpdate = async (packagePath) => {
-  const { name } = JSON.parse(readFileSync(join(process.cwd(), packagePath, 'package.json')))
+  const { name } = JSON.parse(
+    readFileSync(join(process.cwd(), packagePath, 'package.json'))
+  )
 
   if (!existsSync(join(process.cwd(), 'node_modules', name))) {
     return true
@@ -107,11 +121,11 @@ const packageNeedsUpdate = async (packagePath) => {
 
   const { hash } = await hashElement(join(process.cwd(), packagePath), {
     folders: {
-      exclude: ['node_modules', 'test', '.*']
+      exclude: ['node_modules', 'test', '.*'],
     },
     files: {
-      include: ['*.js', '**/*.js']
-    }
+      include: ['*.js', '**/*.js'],
+    },
   })
 
   let cachedHash
@@ -151,8 +165,10 @@ export const installWithoutSave = async (packagePaths) => {
   let pathsToUpdate = await Promise.all(packagePaths.map(packageNeedsUpdate))
   pathsToUpdate = packagePaths.filter((_, index) => pathsToUpdate[index])
 
-  if (pathsToUpdate.length) {
-    await installTarballs(pathsToUpdate)
+  // If one package is out of date we have to install the others again as well
+  // otherwise they'll be pruned from node_modules.
+  if (pathsToUpdate.length !== 0) {
+    await installTarballs(packagePaths)
   }
 
   // Removes previous log.

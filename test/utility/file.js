@@ -1,25 +1,34 @@
 import { readFileSync, writeFileSync } from 'fs'
-import { join } from 'path'
+import { isAbsolute, join } from 'path'
 
 export const readFile = (name, options = {}) => {
-    const path = join(process.cwd(), name)
+  let path = name
 
-    let content = readFileSync(path, 'utf8')
+  if (!isAbsolute(path)) {
+    path = join(process.cwd(), path)
+  }
 
-    if (options.json) {
-        content = JSON.parse(content)
-    }
+  let content = readFileSync(path, 'utf8')
 
-    return content
+  if (options.json) {
+    content = JSON.parse(content)
+  }
+
+  return content
 }
 
 export const writeFile = (name, content, options = {}) => {
-    const path = join(process.cwd(), name)
-    let writeContent = content
+  let path = name
 
-    if (options.json) {
-        writeContent = JSON.stringify(content, null, 2)
-    }
+  if (!isAbsolute(path)) {
+    path = join(process.cwd(), path)
+  }
 
-    writeFileSync(path, writeContent)
+  let writeContent = content
+
+  if (options.json) {
+    writeContent = JSON.stringify(content, null, 2)
+  }
+
+  writeFileSync(path, writeContent)
 }
