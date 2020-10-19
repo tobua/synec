@@ -172,8 +172,11 @@ export const installWithoutSave = async (packagePaths) => {
   }
 
   // Removes previous log.
-  process.stdout.clearLine()
-  process.stdout.cursorTo(0)
+  // Jest implements a custom process.stdout without these functions, therefore skip on tests.
+  if (process.stdout.clearLine && process.stdout.cursorTo) {
+    process.stdout.clearLine()
+    process.stdout.cursorTo(0)
+  }
 
   log('localDependencies installed')
 }

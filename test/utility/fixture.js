@@ -98,6 +98,10 @@ hello()
           files: ['index.js'],
         },
       },
+      {
+        name: 'index.js',
+        contents: `console.log('initial contents')`,
+      },
     ],
   },
 ]

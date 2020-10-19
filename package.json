@@ -45,6 +45,9 @@
     }
   },
   "jest": {
+    "modulePathIgnorePatterns": [
+      "test/fixture"
+    ],
     "transform": {
       "^.+\\.jsx?$": [
         "babel-jest",

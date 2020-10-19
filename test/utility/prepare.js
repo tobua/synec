@@ -2,10 +2,10 @@
 import { join } from 'path'
 import { setup, reset } from './fixture.js'
 
-export const prepare = (suiteName) => {
-  // Waiting up to 5 minutes for async tests, npm install might take some time.
-  jest.setTimeout(300000)
+// Waiting up to 5 minutes for async tests, npm install might take some time.
+jest.setTimeout(300000)
 
+export const prepare = (suiteName) => {
   const currentDirectorySpy = jest.spyOn(process, 'cwd')
   const setCwd = (_path) => currentDirectorySpy.mockReturnValue(_path)
 
@@ -23,7 +23,7 @@ export const prepare = (suiteName) => {
   return [
     {
       first: '../my-plugin',
-      second: 'my-second-plugin',
+      second: '../my-second-plugin',
     },
     setCwd,
   ]
