@@ -68,7 +68,7 @@ test('Watch script is run in background and generates assets.', async () => {
   )
 
   // Wait as script runs in watch mode with separate process.
-  await wait(20)
+  await wait(10)
 
   const buildPluginPath = join(process.cwd(), pluginRelativePaths.build)
 

@@ -18,7 +18,8 @@
     "logua": "^2.1.1",
     "parse-gitignore": "^1.0.1",
     "schema-utils": "^3.0.0",
-    "semver": "^7.3.2"
+    "semver": "^7.3.2",
+    "strip-ansi": "^6.0.0"
   },
   "type": "module",
   "main": "index.js",
@@ -31,7 +32,7 @@
     "!test"
   ],
   "devDependencies": {
-    "padua": "^0.1.2",
+    "padua": "^0.1.3",
     "rimraf": "^3.0.2"
   },
   "prettier": "padua/configuration/.prettierrc.json",
