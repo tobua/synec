@@ -24,6 +24,7 @@ export const prepare = (suiteName) => {
     {
       first: '../my-plugin',
       second: '../my-second-plugin',
+      build: '../my-built-plugin',
     },
     setCwd,
   ]

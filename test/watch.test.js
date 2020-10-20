@@ -2,6 +2,7 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import { writeFile, readFile } from './utility/file.js'
 import { prepare } from './utility/prepare.js'
+import { wait } from './utility/wait.js'
 import {
   watchLocalDependencies,
   installAppDependencies,
@@ -9,8 +10,6 @@ import {
 } from '../utility.js'
 
 const [pluginRelativePaths] = prepare('watch')
-
-const wait = (time) => new Promise((done) => setTimeout(done, time * 1000))
 
 test('Watcher copies over changed file.', async () => {
   installAppDependencies()

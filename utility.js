@@ -7,27 +7,16 @@ import {
   existsSync,
   writeFileSync,
 } from 'fs'
-import childProcess from 'child_process'
+import { execSync, spawn } from 'child_process'
 import chokidar from 'chokidar'
 import parseIgnore from 'parse-gitignore'
-import { create } from 'logua'
 import checkDependencies from 'check-dependencies'
 import { hashElement } from 'folder-hash'
-
-export const log = create('synec', 'yellow')
-
-const getPackageJson = (packagePath = '') => {
-  const packageJsonPath = join(process.cwd(), packagePath, 'package.json')
-
-  try {
-    return JSON.parse(readFileSync(packageJsonPath, 'utf8'))
-  } catch (error) {
-    return log(`Unable to load package.json from ${packageJsonPath}`, 'error')
-  }
-}
+import { context } from './utility/context.js'
+import { log } from './utility/log.js'
 
 export const getLocalDependencies = () => {
-  const { localDependencies } = getPackageJson()
+  const { localDependencies } = context
 
   if (!localDependencies) {
     return false
@@ -56,34 +45,41 @@ export const getLocalDependencies = () => {
   return Object.keys(localDependencies).map((name) => localDependencies[name])
 }
 
-const appDependenciesInstalled = () => {
-  const hasNodeModules = existsSync(join(process.cwd(), 'node_modules'))
-  const hasLockFile = existsSync(join(process.cwd(), 'package-lock.json'))
+const appDependenciesInstalled = (packagePath = '') => {
+  const hasNodeModules = existsSync(
+    join(process.cwd(), packagePath, 'node_modules')
+  )
+  const hasLockFile = existsSync(
+    join(process.cwd(), packagePath, 'package-lock.json')
+  )
+
+  const packageName =
+    packagePath !== '' ? context.plugin[packagePath].pkg.name : context.pkg.name
 
   if (!hasNodeModules || !hasLockFile) {
-    log('Dependencies not installed: installing')
+    log(`Dependencies for ${packageName} not installed: installing`)
     return false
   }
 
   const { depsWereOk } = checkDependencies.sync({
-    packageDir: process.cwd(),
+    packageDir: join(process.cwd(), packagePath),
     verbose: false,
   })
 
   if (!depsWereOk) {
-    log('Dependencies out-of-date: reinstalling')
+    log(`Dependencies for ${packageName} out-of-date: reinstalling`)
   }
 
   return depsWereOk
 }
 
-export const installAppDependencies = () => {
-  if (appDependenciesInstalled()) {
+export const installAppDependencies = (packagePath = '') => {
+  if (appDependenciesInstalled(packagePath)) {
     return
   }
 
-  childProcess.execSync(`npm install`, {
-    cwd: process.cwd(),
+  execSync(`npm install`, {
+    cwd: join(process.cwd(), packagePath),
     // Silences console output.
     stdio: 'ignore',
   })
@@ -143,7 +139,7 @@ const installTarballs = async (pathsToUpdate) => {
     .join(' ')
 
   // Will prune unlisted tarballs or dependencies https://github.com/npm/npm/issues/16853
-  childProcess.execSync(`npm install --no-save ${tarballs}`, {
+  execSync(`npm install --no-save ${tarballs}`, {
     cwd: process.cwd(),
     // Silences console output.
     stdio: 'ignore',
@@ -192,12 +188,47 @@ const loadAndParseNpmIgnore = (packagePath) => {
   }
 }
 
+export const runScripts = (packagePaths, watch) => {
+  const script = watch ? 'watch' : 'build'
+
+  packagePaths.forEach((packagePath) => {
+    // Install dependencies possibly required for script if missing.
+    installAppDependencies(packagePath)
+
+    const { scripts, name } = context.plugin[packagePath].pkg
+
+    if (!scripts) {
+      return
+    }
+
+    const command = scripts[script]
+
+    if (!command) {
+      return
+    }
+
+    if (watch) {
+      log(`Watching ${name} in background by running "${command}"`)
+
+      spawn(command, [], {
+        cwd: join(process.cwd(), packagePath),
+      })
+    } else {
+      log(`Building ${name} by running "${command}"`)
+
+      execSync(command, {
+        cwd: join(process.cwd(), packagePath),
+      })
+    }
+  })
+}
+
 export const getWatchPaths = (packagePath) => {
   // npm dotdir-regex / dotfile-regex
   const dotDirRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)[\\/]/
   const dotFileRegex = /(?:^|[\\/])(\.(?!\.)[^\\/]+)$/
   const alwaysIgnored = [/node_modules/, dotDirRegex, dotFileRegex]
-  const { files, main, name } = getPackageJson(packagePath)
+  const { files, main, name } = context.plugin[packagePath].pkg
   const npmIgnore = loadAndParseNpmIgnore(packagePath)
 
   const filesMissing = !files || !Array.isArray(files) || files.length < 1

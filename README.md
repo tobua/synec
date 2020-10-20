@@ -20,8 +20,12 @@ Test local npm packages in projects by listing them in `localDependencies` in th
 
 ## Features
 
+- Installs npm packages from local folders
+- Reinstalls only when changes have been made
+- Watches for changes and copies them over directly
+- Installs `dependencies` of local packages
+- Provides plugin for seamless build tool integration
 - Installs `localDependencies` before build
-- Watches for changes and rebuilds
 
 ## Installation
 
@@ -90,7 +94,6 @@ For a quick solution you can also do `npm i --no-save $(npm pack ../my-plugin | 
 - Build local dependency in watch mode
 - Watch dependencies of local dependencies
 - Watch `localDependencies` for changes
-- Refresh after plugin installed
 
 ## Similar
 

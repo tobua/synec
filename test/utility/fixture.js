@@ -39,20 +39,12 @@ const structure = [
           dependencies: {
             webpack: '^5.0.0',
           },
-          scripts: {
-            build: "echo 'build'",
-            watch: "echo 'watch'",
-          },
           files: ['index.js'],
         },
       },
       {
         name: '.npmignore',
         contents: `build.js\n`,
-      },
-      {
-        name: 'build.js',
-        contents: ``,
       },
       {
         name: 'excluded.js',
@@ -91,16 +83,63 @@ hello()
             chalk: '^4.1.0',
             axios: '^0.20.0',
           },
-          scripts: {
-            build: "echo 'build'",
-            watch: "echo 'watch'",
-          },
           files: ['index.js'],
         },
       },
       {
         name: 'index.js',
         contents: `console.log('initial contents')`,
+      },
+    ],
+  },
+  {
+    name: 'my-built-plugin',
+    files: [
+      {
+        name: 'package.json',
+        json: true,
+        contents: {
+          name: 'my-built-plugin',
+          version: '1.0.0',
+          main: 'dist/index.js',
+          type: 'module',
+          devDependencies: {
+            typescript: '^4.0.3',
+            esbuild: '^0.7.17',
+          },
+          scripts: {
+            build: 'node build.js',
+            watch: 'tsc --watch',
+          },
+          files: ['dist'],
+        },
+      },
+      {
+        name: 'build.js',
+        contents: `import esbuild from 'esbuild'
+
+esbuild.build({
+  entryPoints: ['./index.ts'],
+  outfile: './dist/index.js',
+  minify: true,
+  bundle: true,
+}).catch(() => process.exit(1))`,
+      },
+      {
+        name: 'index.ts',
+        contents: `export const hello = (input: number) => \`whoo \${input * 2}\``,
+      },
+      {
+        name: 'tsconfig.json',
+        json: true,
+        contents: {
+          compilerOptions: {
+            outDir: 'dist',
+            declaration: true,
+          },
+          include: ['index.ts'],
+          exclude: ['node_modules'],
+        },
       },
     ],
   },
@@ -131,9 +170,6 @@ export const setup = (suiteName) => {
 
 // Remove temporary files inside fixtures created during tests.
 export const reset = (BASE) => {
-  rimraf.sync(join(BASE, 'my-app/node_modules'))
-  rimraf.sync(join(BASE, 'my-app/package-lock.json'))
-
-  rimraf.sync(join(BASE, 'my-plugin/node_modules'))
-  rimraf.sync(join(BASE, 'my-plugin/package-lock.json'))
+  rimraf.sync(join(BASE, '*/node_modules'))
+  rimraf.sync(join(BASE, '*/package-lock.json'))
 }
