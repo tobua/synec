@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.8](https://github.com/tobua/synec/compare/v0.1.7...v0.1.8) (2020-10-21)
+
+
+### Features
+
+* **hash:** hash installed plugin to avoid unnecessary installs ([6be4b64](https://github.com/tobua/synec/commit/6be4b64f3865c8daa75fe948ea907ed9807c6959))
+* **install:** install or upgrade dependencies before installing plugin ([7417214](https://github.com/tobua/synec/commit/7417214cbf994425477ff8ebbca97f0f6754e695))
+* **scripts:** integrate scripts feature into cli and plugin ([3e27706](https://github.com/tobua/synec/commit/3e27706eb5182f17b64bf2a7c16cc8be9fe6eef4))
+* **scripts:** run plugin scripts before install and improve tests ([b55a1d8](https://github.com/tobua/synec/commit/b55a1d8560ac9073c0dbccca06c54aeef2580c6b))
+
+
+### Bug Fixes
+
+* **cli:** exit in these cases should be successful ([371de65](https://github.com/tobua/synec/commit/371de6524a5334e17b95d95d7b2688797e6e6729))
+* **scripts:** improve integration of recent changes ([217f65f](https://github.com/tobua/synec/commit/217f65f292f79b5de8fb54a1c8a539a108275251))
+* **scripts:** pass over spawned watch script to regular console ([d7bef9d](https://github.com/tobua/synec/commit/d7bef9d9343755f44a9ad7fa538973281936f70d))
+
 ### [0.1.7](https://github.com/tobua/synec/compare/v0.1.6...v0.1.7) (2020-09-16)
 
 
