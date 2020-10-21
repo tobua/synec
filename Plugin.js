@@ -1,4 +1,4 @@
-import validateOptions from 'schema-utils'
+import { validate } from 'schema-utils'
 import {
   getLocalDependencies,
   installWithoutSave,
@@ -31,7 +31,7 @@ const schema = {
 
 export const LocalDependenciesPlugin = class {
   constructor(options = { production: false, watch: true, script: true }) {
-    validateOptions(schema, options, { name: pluginName })
+    validate(schema, options, { name: pluginName })
     this.options = options
   }
 
