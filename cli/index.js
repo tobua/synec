@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
 import childProcess from 'child_process'
-import { getLocalDependencies, installWithoutSave, installAppDependencies } from '../utility.js'
-import { getOptions } from './options.js'
+import { getLocalDependencies, installWithoutSave, installAppDependencies, runScripts } from '../utility.js'
+import { context } from '../utility/context.js'
 
-const options = getOptions()
-
-if (process.env.NODE_ENV === 'production' && !options.production) {
+if (process.env.NODE_ENV === 'production' && !context.options.production) {
   process.exit(0)
 }
 
@@ -17,9 +15,14 @@ if (!localDependencies) {
 }
 
 installAppDependencies()
+
+if (context.options.script) {
+  runScripts()
+}
+
 await installWithoutSave(localDependencies)
 
-if (!options.watch) {
+if (!context.options.watch) {
   process.exit(0)
 }
 

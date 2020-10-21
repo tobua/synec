@@ -3,6 +3,7 @@ import {
   getLocalDependencies,
   installWithoutSave,
   watchLocalDependencies,
+  runScripts,
 } from './utility.js'
 
 const pluginName = 'LocalDependenciesPlugin'
@@ -20,11 +21,15 @@ const schema = {
         'Watches packages for changes and updates on changes, default true.',
       type: 'boolean',
     },
+    script: {
+      description: 'Run build or watch script before installing plugin, default true.',
+      type: 'boolean'
+    }
   },
 }
 
 export const LocalDependenciesPlugin = class {
-  constructor(options = { production: false, watch: true }) {
+  constructor(options = { production: false, watch: true, script: true }) {
     validateOptions(schema, options, { name: pluginName })
     this.options = options
   }
@@ -42,6 +47,9 @@ export const LocalDependenciesPlugin = class {
 
     // Initial install of local dependencies.
     compiler.hooks.environment.tap(pluginName, async () => {
+      if (this.options.script) {
+        runScripts(localDependencies, this.options.watch)
+      }
       await installWithoutSave(localDependencies)
 
       if (!this.options.watch) {

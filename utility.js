@@ -189,6 +189,39 @@ const loadAndParseNpmIgnore = (packagePath) => {
   }
 }
 
+const runWatchScript = (name, command, packagePath) => {
+  log(`Watching ${name} in background by running "${command}"`)
+
+  const commandSeparated = command.split(' ')
+
+  // The first needs to be a single command, while the second includes the arguments.
+  const spawnChild = spawn(commandSeparated[0], commandSeparated.slice(1), {
+    cwd: join(process.cwd(), packagePath),
+  })
+
+  // Create custom stream to make sure console not cleared, as 'tsc --watch' would do normally.
+  spawnChild.stdout.setEncoding('utf8')
+  spawnChild.stdout.on('data', (data) => {
+    // This includes ANSI Escape characters, which mess with the rest of the console.
+    // Therefore removing them.
+    console.log(stripAnsi(data.toString()))
+  })
+
+  // Kill watcher after 5 seconds in test environment.
+  if (typeof jest !== 'undefined') {
+    setTimeout(() => spawnChild.kill(), 5000)
+  }
+}
+
+const runBuildScript = (name, command, packagePath) => {
+  log(`Building ${name} by running "${command}"`)
+
+  execSync(command, {
+    cwd: join(process.cwd(), packagePath),
+    stdio: 'inherit',
+  })
+}
+
 export const runScripts = (packagePaths, watch) => {
   const script = watch ? 'watch' : 'build'
 
@@ -209,34 +242,9 @@ export const runScripts = (packagePaths, watch) => {
     }
 
     if (watch) {
-      log(`Watching ${name} in background by running "${command}"`)
-
-      const commandSeparated = command.split(' ')
-
-      // The first needs to be a single command, while the second includes the arguments.
-      const spawnChild = spawn(commandSeparated[0], commandSeparated.slice(1), {
-        cwd: join(process.cwd(), packagePath),
-      })
-
-      // Create custom stream to make sure console not cleared, as 'tsc --watch' would do normally.
-      spawnChild.stdout.setEncoding('utf8')
-      spawnChild.stdout.on('data', (data) => {
-        // This includes ANSI Escape characters, which mess with the rest of the console.
-        // Therefore removing them.
-        console.log(stripAnsi(data.toString()))
-      })
-
-      // Kill watcher after 5 seconds in test environment.
-      if (typeof jest !== 'undefined') {
-        setTimeout(() => spawnChild.kill(), 5000)
-      }
+      runWatchScript(name, command, packagePath)
     } else {
-      log(`Building ${name} by running "${command}"`)
-
-      execSync(command, {
-        cwd: join(process.cwd(), packagePath),
-        stdio: 'inherit',
-      })
+      runBuildScript(name, command, packagePath)
     }
   })
 }

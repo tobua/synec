@@ -7,6 +7,7 @@ const state = {
   plugin: {
     // Plugin<{ pkg }>
   },
+  options: null
 }
 
 // From https://stackoverflow.com/a/43849204/3185545
@@ -29,6 +30,30 @@ const getPackageJson = (packagePath = '') => {
     log(`Unable to load package.json from ${packageJsonPath}`, 'error')
     return null
   }
+}
+
+const getOptions = () => {
+  const scripts = process.argv
+  // Default options.
+  const options = {
+    watch: true,
+    production: false,
+    script: true,
+  }
+
+  if (scripts.includes('--no-watch')) {
+    options.watch = false
+  }
+
+  if (scripts.includes('--no-script')) {
+    options.script = false
+  }
+
+  if (scripts.includes('--production')) {
+    options.production = true
+  }
+
+  return options
 }
 
 const getState = (path, generator) => {
@@ -73,6 +98,10 @@ const proxy = (current) =>
 
         if (property === 'plugin') {
           return proxy('plugin')
+        }
+
+        if (property === 'options') {
+          return getState('options', getOptions)
         }
 
         return false

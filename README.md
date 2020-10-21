@@ -24,6 +24,7 @@ Test local npm packages in projects by listing them in `localDependencies` in th
 - Reinstalls only when changes have been made
 - Watches for changes and copies them over directly
 - Installs `dependencies` of local packages
+- Runs `build` or `watch` script before installing plugin
 - Provides plugin for seamless build tool integration
 - Installs `localDependencies` before build
 
@@ -51,7 +52,7 @@ Add `synec` in front of a `script` inside `package.json` and it will make sure `
 }
 ```
 
-> Options: `--no-watch` disable watching for changes `--production` also install in production mode.
+> Options: `--no-watch` disable watching for changes, `--production` also install in production mode and `--no-script` disable running `build` or `watch` script before installing the plugin.
 
 ### As a webpack Plugin
 
@@ -74,13 +75,16 @@ Here are the available `options` with their respective defaults.
 ```js
 new LocalDependenciesPlugin({
   production: false,
-  watch: true,
+  watch: true, 
+  script: true,
 })
 ```
 
 `production`: Whether to also install local dependencies in production mode.
 
 `watch`: Watch source folder of `localDependencies` for changes and automatically copy them over.
+
+`script`: If `watch` options is false run the `build` script of the plugin and otherwise run the `watch` script inside the plugin if available.
 
 ## Motivation
 
@@ -90,10 +94,8 @@ For a quick solution you can also do `npm i --no-save $(npm pack ../my-plugin | 
 
 ## Upcoming Features
 
-- Build local dependency before install
-- Build local dependency in watch mode
-- Watch dependencies of local dependencies
-- Watch `localDependencies` for changes
+- Watch dependencies of local dependencies in package.json
+- Watch `localDependencies` object in package.json for changes
 
 ## Similar
 

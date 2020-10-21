@@ -26,3 +26,9 @@ test('Reads package contents of referenced plugins.', () => {
     'my-second-plugin'
   )
 })
+
+test('Default options are set properly.', () => {
+  expect(context.options.watch).toEqual(true)
+  expect(context.options.production).toEqual(false)
+  expect(context.options.script).toEqual(true)
+})
