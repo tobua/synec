@@ -22,9 +22,10 @@ const schema = {
       type: 'boolean',
     },
     script: {
-      description: 'Run build or watch script before installing plugin, default true.',
-      type: 'boolean'
-    }
+      description:
+        'Run build or watch script before installing plugin, default true.',
+      type: 'boolean',
+    },
   },
 }
 

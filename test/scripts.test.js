@@ -1,6 +1,6 @@
 import { existsSync } from 'fs'
 import { join } from 'path'
-import { writeFile, readFile } from './utility/file.js'
+import { readFile } from './utility/file.js'
 import { prepare } from './utility/prepare.js'
 import { wait } from './utility/wait.js'
 import {

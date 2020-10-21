@@ -7,7 +7,7 @@ const state = {
   plugin: {
     // Plugin<{ pkg }>
   },
-  options: null
+  options: null,
 }
 
 // From https://stackoverflow.com/a/43849204/3185545

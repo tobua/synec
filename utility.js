@@ -17,7 +17,7 @@ import { context } from './utility/context.js'
 import { log } from './utility/log.js'
 
 export const getLocalDependencies = () => {
-  const { localDependencies } = context
+  const { localDependencies } = context.pkg
 
   if (!localDependencies) {
     return false
@@ -47,6 +47,7 @@ export const getLocalDependencies = () => {
 }
 
 const appDependenciesInstalled = (packagePath = '') => {
+  // TODO install without dependencies will only create a lock file and doesn't even need one.
   const hasNodeModules = existsSync(
     join(process.cwd(), packagePath, 'node_modules')
   )
@@ -226,9 +227,6 @@ export const runScripts = (packagePaths, watch) => {
   const script = watch ? 'watch' : 'build'
 
   packagePaths.forEach((packagePath) => {
-    // Install dependencies possibly required for script if missing.
-    installAppDependencies(packagePath)
-
     const { scripts, name } = context.plugin[packagePath].pkg
 
     if (!scripts) {
@@ -240,6 +238,9 @@ export const runScripts = (packagePaths, watch) => {
     if (!command) {
       return
     }
+
+    // Install dependencies possibly required for script if missing.
+    installAppDependencies(packagePath)
 
     if (watch) {
       runWatchScript(name, command, packagePath)

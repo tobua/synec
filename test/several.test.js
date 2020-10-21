@@ -2,11 +2,7 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import { writeFile, readFile } from './utility/file.js'
 import { prepare } from './utility/prepare.js'
-import {
-  watchLocalDependencies,
-  installAppDependencies,
-  installWithoutSave,
-} from '../utility.js'
+import { installAppDependencies, installWithoutSave } from '../utility.js'
 
 const [pluginRelativePaths] = prepare('several')
 
