@@ -193,16 +193,25 @@ const loadAndParseNpmIgnore = (packagePath) => {
 const runWatchScript = (name, command, packagePath) => {
   log(`Watching ${name} in background by running "${command}"`)
 
-  const commandSeparated = command.split(' ')
+  const child = exec(
+    'npm run watch',
+    {
+      cwd: join(process.cwd(), packagePath),
+    },
+    (error, stdout, stderr) => {
+      // This will not be called as long as the command is still running.
+      if (error) {
+        log(error)
+      }
 
-  // The first needs to be a single command, while the second includes the arguments.
-  const spawnChild = spawn(commandSeparated[0], commandSeparated.slice(1), {
-    cwd: join(process.cwd(), packagePath),
-  })
+      console.log(stdout)
+      console.log(stderr)
+    }
+  )
 
   // Create custom stream to make sure console not cleared, as 'tsc --watch' would do normally.
-  spawnChild.stdout.setEncoding('utf8')
-  spawnChild.stdout.on('data', (data) => {
+  child.stdout.setEncoding('utf8')
+  child.stdout.on('data', (data) => {
     // This includes ANSI Escape characters, which mess with the rest of the console.
     // Therefore removing them.
     console.log(stripAnsi(data.toString()))
@@ -210,7 +219,7 @@ const runWatchScript = (name, command, packagePath) => {
 
   // Kill watcher after 5 seconds in test environment.
   if (typeof jest !== 'undefined') {
-    setTimeout(() => spawnChild.kill(), 5000)
+    setTimeout(() => child.kill(), 5000)
   }
 }
 
@@ -224,16 +233,19 @@ const runBuildScript = (name, command, packagePath) => {
 }
 
 export const runScripts = (packagePaths, watch) => {
-  const script = watch ? 'watch' : 'build'
-
   packagePaths.forEach((packagePath) => {
-    const { scripts, name } = context.plugin[packagePath].pkg
+    const { scripts, name, main } = context.plugin[packagePath].pkg
 
     if (!scripts) {
       return
     }
 
-    const command = scripts[script]
+    let command = scripts[watch ? 'watch' : 'build']
+
+    // padua for example uses start script to watch build.
+    if (watch && !command) {
+      command = scripts.start
+    }
 
     if (!command) {
       return
@@ -243,6 +255,14 @@ export const runScripts = (packagePaths, watch) => {
     installAppDependencies(packagePath)
 
     if (watch) {
+      if (!existsSync(join(process.cwd(), packagePath, main))) {
+        log(
+          `main file "${main}" missing in package ${name} running a regular build first`
+        )
+        // Run a regular build first to ensure files are available on initial install.
+        runBuildScript(name, scripts.build, packagePath)
+      }
+
       runWatchScript(name, command, packagePath)
     } else {
       runBuildScript(name, command, packagePath)
