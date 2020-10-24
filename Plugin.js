@@ -5,6 +5,7 @@ import {
   watchLocalDependencies,
   runScripts,
 } from './utility.js'
+import { context, setOptions } from './utility/context.js'
 
 const pluginName = 'LocalDependenciesPlugin'
 
@@ -30,13 +31,15 @@ const schema = {
 }
 
 export const LocalDependenciesPlugin = class {
-  constructor(options = { production: false, watch: true, script: true }) {
+  constructor(options = context.options) {
     validate(schema, options, { name: pluginName })
     this.options = options
+    setOptions(this.options)
   }
 
+  // eslint-disable-next-line class-methods-use-this
   apply(compiler) {
-    if (compiler.options.mode === 'production' && !this.options.production) {
+    if (compiler.options.mode === 'production' && !context.options.production) {
       return
     }
 
@@ -48,12 +51,12 @@ export const LocalDependenciesPlugin = class {
 
     // Initial install of local dependencies.
     compiler.hooks.environment.tap(pluginName, async () => {
-      if (this.options.script) {
-        runScripts(localDependencies, this.options.watch)
+      if (context.options.script) {
+        runScripts(localDependencies, context.options.watch)
       }
       await installWithoutSave(localDependencies)
 
-      if (!this.options.watch) {
+      if (!context.options.watch) {
         return
       }
 

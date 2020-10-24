@@ -7,7 +7,9 @@ import {
   installAppDependencies,
   runScripts,
 } from '../utility.js'
-import { context } from '../utility/context.js'
+import { context, getOptionsFromArgv } from '../utility/context.js'
+
+getOptionsFromArgv()
 
 if (process.env.NODE_ENV === 'production' && !context.options.production) {
   process.exit(0)

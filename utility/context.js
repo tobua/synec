@@ -7,7 +7,13 @@ const state = {
   plugin: {
     // Plugin<{ pkg }>
   },
-  options: null,
+  options: {
+    watch: true,
+    production: false,
+    script: true,
+  },
+  // Don't remove any files until watch is adding files or timeout has passed.
+  watchRemoveProtected: false,
 }
 
 // From https://stackoverflow.com/a/43849204/3185545
@@ -30,30 +36,6 @@ const getPackageJson = (packagePath = '') => {
     log(`Unable to load package.json from ${packageJsonPath}`, 'error')
     return null
   }
-}
-
-const getOptions = () => {
-  const scripts = process.argv
-  // Default options.
-  const options = {
-    watch: true,
-    production: false,
-    script: true,
-  }
-
-  if (scripts.includes('--no-watch')) {
-    options.watch = false
-  }
-
-  if (scripts.includes('--no-script')) {
-    options.script = false
-  }
-
-  if (scripts.includes('--production')) {
-    options.production = true
-  }
-
-  return options
 }
 
 const getState = (path, generator) => {
@@ -84,6 +66,10 @@ const proxy = (current) =>
           return proxy(`${current}.${property}`)
         }
 
+        if (property === 'watchRemoveProtected') {
+          return state.watchRemoveProtected
+        }
+
         if (property === 'pkg' || current.endsWith('pkg')) {
           const pluginName = current.match(/.*\[(.*)\].*/)
 
@@ -101,12 +87,62 @@ const proxy = (current) =>
         }
 
         if (property === 'options') {
-          return getState('options', getOptions)
+          return state.options
         }
 
         return false
+      },
+      set: (_, property, value) => {
+        if (current === 'options') {
+          state.options[property] = value
+          return true
+        }
+
+        if (property === 'watchRemoveProtected') {
+          state.watchRemoveProtected = value
+          return true
+        }
+
+        if (property === 'options') {
+          return proxy('options')
+        }
+
+        state[property] = value
+
+        return value
       },
     }
   )
 
 export const context = proxy('')
+
+export const getOptionsFromArgv = () => {
+  // Set options.
+  const scripts = process.argv
+
+  if (scripts.includes('--no-watch')) {
+    context.options.watch = false
+  }
+
+  if (scripts.includes('--no-script')) {
+    context.options.script = false
+  }
+
+  if (scripts.includes('--production')) {
+    context.options.production = true
+  }
+}
+
+export const setOptions = (options) => {
+  if (!options.watch) {
+    context.options.watch = false
+  }
+
+  if (!options.script) {
+    context.options.script = false
+  }
+
+  if (options.production) {
+    context.options.production = true
+  }
+}

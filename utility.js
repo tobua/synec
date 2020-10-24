@@ -7,7 +7,7 @@ import {
   existsSync,
   writeFileSync,
 } from 'fs'
-import { execSync, spawn } from 'child_process'
+import { execSync, exec } from 'child_process'
 import chokidar from 'chokidar'
 import stripAnsi from 'strip-ansi'
 import parseIgnore from 'parse-gitignore'
@@ -190,24 +190,31 @@ const loadAndParseNpmIgnore = (packagePath) => {
   }
 }
 
-const runWatchScript = (name, command, packagePath) => {
+const runWatchScript = (name, scripts, packagePath) => {
+  const command = scripts.watch ? 'npm run watch' : 'npm start'
   log(`Watching ${name} in background by running "${command}"`)
 
   const child = exec(
-    'npm run watch',
+    command,
     {
       cwd: join(process.cwd(), packagePath),
     },
     (error, stdout, stderr) => {
       // This will not be called as long as the command is still running.
       if (error) {
-        log(error)
+        log(error, 'warning')
       }
 
-      console.log(stdout)
-      console.log(stderr)
+      log(stdout)
+      log(stderr, 'warning')
     }
   )
+
+  context.watchRemoveProtected = true
+
+  // After first build is done, no more need to protect files from being deleted.
+  // eslint-disable-next-line no-return-assign
+  setTimeout(() => (context.watchRemoveProtected = false), 2000)
 
   // Create custom stream to make sure console not cleared, as 'tsc --watch' would do normally.
   child.stdout.setEncoding('utf8')
@@ -263,7 +270,7 @@ export const runScripts = (packagePaths, watch) => {
         runBuildScript(name, scripts.build, packagePath)
       }
 
-      runWatchScript(name, command, packagePath)
+      runWatchScript(name, scripts, packagePath)
     } else {
       runBuildScript(name, command, packagePath)
     }
@@ -338,6 +345,11 @@ export const watchLocalDependencies = (packagePaths) => {
   })
 
   const copyFile = (from, to, filePath) => {
+    if (context.watchRemoveProtected && !filePath.endsWith('package.json')) {
+      // Files can be deleted after remove.
+      context.watchRemoveProtected = false
+    }
+
     log(`Copying ${filePath}`, {
       group: 'copy-synec',
       message: (count) => `Copying ${count} files`,
@@ -350,6 +362,10 @@ export const watchLocalDependencies = (packagePaths) => {
   }
 
   const removeFile = (to, filePath) => {
+    if (context.watchRemoveProtected) {
+      return
+    }
+
     log(`Removing ${filePath}`, {
       group: 'remove-synec',
       message: (count) => `Removing ${count} files`,

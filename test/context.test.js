@@ -32,3 +32,17 @@ test('Default options are set properly.', () => {
   expect(context.options.production).toEqual(false)
   expect(context.options.script).toEqual(true)
 })
+
+test('Options can be set.', () => {
+  expect(context.options.watch).toEqual(true)
+
+  context.options.watch = false
+
+  expect(context.options.watch).toEqual(false)
+})
+
+test('Setters for options work properly.', () => {
+  expect(context.watchRemoveProtected).toBeFalsy()
+  context.watchRemoveProtected = true
+  expect(context.watchRemoveProtected).toBeTruthy()
+})
