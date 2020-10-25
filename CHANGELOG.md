@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.9](https://github.com/tobua/synec/compare/v0.1.8...v0.1.9) (2020-10-25)
+
+
+### Bug Fixes
+
+* **scripts:** improve watch script to run npm bins properly ([26d6971](https://github.com/tobua/synec/commit/26d697118458250a488de86600b40c19ac8883aa))
+* **scripts:** make sure watch doesn't override initial files ([d7a2b94](https://github.com/tobua/synec/commit/d7a2b94a5a18fe7fe06b7bb162ae746825bf1864))
+* **update:** fix breaking change in schema-utils ([1a68ebf](https://github.com/tobua/synec/commit/1a68ebfff94b5b71ae2ef12a013bef47ef3f6eb2))
+
 ### [0.1.8](https://github.com/tobua/synec/compare/v0.1.7...v0.1.8) (2020-10-21)
 
 
