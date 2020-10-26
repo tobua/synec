@@ -1,7 +1,7 @@
 {
   "name": "synec",
   "description": "Test local npm packages in projects.",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "repository": "github:tobua/synec",
   "license": "MIT",
   "author": "Matthias Giger",
@@ -27,9 +27,10 @@
   "source": "index.js",
   "types": "index.d.ts",
   "files": [
-    "**/*.js",
-    "index.d.ts",
-    "!test"
+    "cli",
+    "utility",
+    "*.js",
+    "index.d.ts"
   ],
   "devDependencies": {
     "padua": "^0.1.3",
