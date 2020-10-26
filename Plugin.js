@@ -62,5 +62,13 @@ export const LocalDependenciesPlugin = class {
 
       watchLocalDependencies(localDependencies)
     })
+
+    // node_modules are cached by default, disable to make sure updated plugins get reflected.
+    compiler.hooks.afterEnvironment.tap(pluginName, () => {
+      // eslint-disable-next-line no-param-reassign
+      compiler.options.cache = !(
+        context.options.watch && context.options.script
+      )
+    })
   }
 }

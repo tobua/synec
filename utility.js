@@ -264,15 +264,19 @@ export const runScripts = (packagePaths, watch) => {
     if (watch) {
       if (!existsSync(join(process.cwd(), packagePath, main))) {
         log(
-          `main file "${main}" missing in package ${name} running a regular build first`
+          `main file "${main}" missing in package "${name}" running a regular build first`
         )
         // Run a regular build first to ensure files are available on initial install.
-        runBuildScript(name, scripts.build, packagePath)
+        if (scripts.build) {
+          runBuildScript(name, 'npm run build', packagePath)
+        } else {
+          log(`no build script found for "${name}" skipping build`, 'warning')
+        }
       }
 
       runWatchScript(name, scripts, packagePath)
     } else {
-      runBuildScript(name, command, packagePath)
+      runBuildScript(name, 'npm run build', packagePath)
     }
   })
 }
