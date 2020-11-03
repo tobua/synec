@@ -9,7 +9,7 @@ const state = {
   },
   options: {
     watch: true,
-    production: false,
+    production: true,
     script: true,
   },
   // Don't remove any files until watch is adding files or timeout has passed.

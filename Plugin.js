@@ -43,6 +43,11 @@ export const LocalDependenciesPlugin = class {
       return
     }
 
+    if (compiler.options.mode === 'production') {
+      // Not watching in production build mode.
+      context.options.watch = false
+    }
+
     const localDependencies = getLocalDependencies()
 
     if (!localDependencies) {

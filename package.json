@@ -33,7 +33,7 @@
     "index.d.ts"
   ],
   "devDependencies": {
-    "padua": "^0.1.3",
+    "padua": "^0.1.4",
     "rimraf": "^3.0.2"
   },
   "prettier": "padua/configuration/.prettierrc.json",
