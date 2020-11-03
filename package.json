@@ -1,7 +1,7 @@
 {
   "name": "synec",
   "description": "Test local npm packages in projects.",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "repository": "github:tobua/synec",
   "license": "MIT",
   "author": "Matthias Giger",
