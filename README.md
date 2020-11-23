@@ -68,7 +68,7 @@ plugins: [new LocalDependenciesPlugin()]
 
 Note: Currently not compatible with [webpack 4](https://github.com/webpack/webpack-cli/issues/1622), since the `webpack-cli` is still using the old require
 for CommonJS. Probably, until version 1 of this package that's fixed. The CLI and
-programmatic version of webpack will work fine already.
+programmatic version of webpack will work fine already. Here is the code snippet using the old require [webpack-cli](https://github.com/webpack/webpack-cli/blob/544b06eb43806078ae505bbcc486da38fcd0dd3b/packages/webpack-cli/lib/groups/ConfigGroup.js#L79).
 
 Here are the available `options` with their respective defaults.
 
