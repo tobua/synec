@@ -141,7 +141,7 @@ const installTarballs = async (pathsToUpdate) => {
     .join(' ')
 
   // Will prune unlisted tarballs or dependencies https://github.com/npm/npm/issues/16853
-  execSync(`npm install --no-save ${tarballs}`, {
+  execSync(`npm install --no-save --legacy-peer-deps ${tarballs}`, {
     cwd: process.cwd(),
     // Silences console output.
     stdio: 'ignore',
