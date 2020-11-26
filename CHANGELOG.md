@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.13](https://github.com/tobua/synec/compare/v0.1.12...v0.1.13) (2020-11-26)
+
+
+### Bug Fixes
+
+* **npm:** install with legacy peer deps to ensure install with npm 7 ([07bd844](https://github.com/tobua/synec/commit/07bd84499dbb06ec97297cb26c2e5accd3b1790e))
+
 ### [0.1.12](https://github.com/tobua/synec/compare/v0.1.11...v0.1.12) (2020-11-03)
 
 
