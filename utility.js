@@ -1,4 +1,3 @@
-import { join, normalize } from 'path'
 import {
   readFileSync,
   readdirSync,
@@ -6,7 +5,9 @@ import {
   copyFileSync,
   existsSync,
   writeFileSync,
+  mkdirSync,
 } from 'fs'
+import { join, normalize, dirname } from 'path'
 import { execSync, exec } from 'child_process'
 import chokidar from 'chokidar'
 import stripAnsi from 'strip-ansi'
@@ -359,6 +360,10 @@ export const watchLocalDependencies = (packagePaths) => {
       message: (count) => `Copying ${count} files`,
     })
     try {
+      const fileDirectory = dirname(filePath)
+      if (!existsSync(fileDirectory)) {
+        mkdirSync(fileDirectory, { recursive: true })
+      }
       copyFileSync(join(from, filePath), join(to, filePath))
     } catch (_) {
       log(`Copying ${filePath} failed`, 'warning')
