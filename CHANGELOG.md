@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.14](https://github.com/tobua/synec/compare/v0.1.13...v0.1.14) (2020-12-27)
+
+
+### Bug Fixes
+
+* **watch:** make sure directory exists when attempting to copy ([15067af](https://github.com/tobua/synec/commit/15067afaa644ff8a64cb1a41276d10b90e2d203c))
+
 ### [0.1.13](https://github.com/tobua/synec/compare/v0.1.12...v0.1.13) (2020-11-26)
 
 
