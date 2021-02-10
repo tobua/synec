@@ -2,7 +2,7 @@ import { existsSync } from 'fs'
 import { join } from 'path'
 import { readFile } from './utility/file.js'
 import { prepare } from './utility/prepare.js'
-import { wait } from './utility/wait.js'
+import { wait, killWatchers } from './utility/helper.js'
 import {
   installAppDependencies,
   installWithoutSave,
@@ -57,7 +57,7 @@ test('Runs the build script if available.', async () => {
 
 test('Watch script is run in background and generates assets.', async () => {
   installAppDependencies()
-  runScripts(
+  const watchers = runScripts(
     [
       pluginRelativePaths.first,
       pluginRelativePaths.second,
@@ -68,7 +68,9 @@ test('Watch script is run in background and generates assets.', async () => {
   )
 
   // Wait as script runs in watch mode with separate process.
-  await wait(10)
+  await wait(15)
+
+  killWatchers(watchers)
 
   const buildPluginPath = join(process.cwd(), pluginRelativePaths.build)
 

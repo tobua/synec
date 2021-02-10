@@ -202,12 +202,16 @@ const runWatchScript = (name, scripts, packagePath) => {
     },
     (error, stdout, stderr) => {
       // This will not be called as long as the command is still running.
-      if (error) {
+      if (error && !(typeof error === 'object' && error.killed)) {
         log(error, 'warning')
       }
 
-      log(stdout)
-      log(stderr, 'warning')
+      // Ignoring regular logs as they are streamed by stdout.on('data') below.
+      // log(stdout)
+
+      if (stderr) {
+        log(stderr, 'warning')
+      }
     }
   )
 
@@ -222,13 +226,10 @@ const runWatchScript = (name, scripts, packagePath) => {
   child.stdout.on('data', (data) => {
     // This includes ANSI Escape characters, which mess with the rest of the console.
     // Therefore removing them.
-    console.log(stripAnsi(data.toString()))
+    log(stripAnsi(data.toString()))
   })
 
-  // Kill watcher after 5 seconds in test environment.
-  if (typeof jest !== 'undefined') {
-    setTimeout(() => child.kill(), 5000)
-  }
+  return () => child.kill()
 }
 
 const runBuildScript = (name, command, packagePath) => {
@@ -241,6 +242,8 @@ const runBuildScript = (name, command, packagePath) => {
 }
 
 export const runScripts = (packagePaths, watch) => {
+  const watchers = []
+
   packagePaths.forEach((packagePath) => {
     const { scripts, name, main } = context.plugin[packagePath].pkg
 
@@ -275,11 +278,15 @@ export const runScripts = (packagePaths, watch) => {
         }
       }
 
-      runWatchScript(name, scripts, packagePath)
+      const killWatcher = runWatchScript(name, scripts, packagePath)
+
+      watchers.push(killWatcher)
     } else {
       runBuildScript(name, 'npm run build', packagePath)
     }
   })
+
+  return watchers
 }
 
 export const getWatchPaths = (packagePath) => {
