@@ -27,13 +27,16 @@ test('Watcher copies over changed file.', async () => {
 
   const newContents = `console.log('changed')`
 
+  // Wait a bit (which users would do) as ignoreInitial is set to true for watcher.
+  await wait(1)
+
   writeFile(indexSourcePath, newContents)
 
   expect(readFile(indexSourcePath)).toEqual(newContents)
 
   // Wait for some time so watcher thread can complete it's task.
   // Requires quite some time to actually copy the files.
-  await wait(20)
+  await wait(5)
 
   expect(readFile(indexPath)).toEqual(newContents)
   expect(readFile(indexPath)).not.toEqual(initialContents)

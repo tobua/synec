@@ -14,6 +14,7 @@ import stripAnsi from 'strip-ansi'
 import parseIgnore from 'parse-gitignore'
 import checkDependencies from 'check-dependencies'
 import { hashElement } from 'folder-hash'
+import rimraf from 'rimraf'
 import { context } from './utility/context.js'
 import { log } from './utility/log.js'
 
@@ -140,6 +141,9 @@ const installTarballs = async (pathsToUpdate) => {
   const tarballs = pathsToUpdate
     .map((path) => `$(npm pack ${path} | tail -1)`)
     .join(' ')
+
+  // npm not pruning dependencies anymore, as described below.
+  rimraf.sync(join(process.cwd(), 'node_modules'))
 
   // Will prune unlisted tarballs or dependencies https://github.com/npm/npm/issues/16853
   execSync(`npm install --no-save --legacy-peer-deps ${tarballs}`, {
