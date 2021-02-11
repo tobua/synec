@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.15](https://github.com/tobua/synec/compare/v0.1.14...v0.1.15) (2021-02-11)
+
+
+### Bug Fixes
+
+* **watch:** fix watch tests and workaround for change in npm ([e2501a5](https://github.com/tobua/synec/commit/e2501a594613ae73d3ddb23aa23ea6fd80aec3fb))
+
 ### [0.1.14](https://github.com/tobua/synec/compare/v0.1.13...v0.1.14) (2020-12-27)
 
 
