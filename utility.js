@@ -371,7 +371,7 @@ export const watchLocalDependencies = (packagePaths) => {
       message: (count) => `Copying ${count} files`,
     })
     try {
-      const fileDirectory = dirname(filePath)
+      const fileDirectory = dirname(join(to, filePath))
       if (!existsSync(fileDirectory)) {
         mkdirSync(fileDirectory, { recursive: true })
       }
