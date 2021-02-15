@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.16](https://github.com/tobua/synec/compare/v0.1.15...v0.1.16) (2021-02-15)
+
+
+### Bug Fixes
+
+* **watch:** copy create directory path absolute ([b63d689](https://github.com/tobua/synec/commit/b63d68930117163412205b3b5c43234a2b05a17a))
+
 ### [0.1.15](https://github.com/tobua/synec/compare/v0.1.14...v0.1.15) (2021-02-11)
 
 
