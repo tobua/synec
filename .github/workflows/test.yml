@@ -1,0 +1,16 @@
+name: test
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  cypress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2.3.4
+      - uses: actions/setup-node@v2.1.5
+      - name: 🧪 Test
+        run: |
+          npm install
+          npm test
