@@ -13,4 +13,4 @@ jobs:
       - name: 🧪 Test
         run: |
           npm install
-          npm test
+          npm test -- --forceExit
