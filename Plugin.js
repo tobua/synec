@@ -6,6 +6,7 @@ import {
   runScripts,
 } from './utility.js'
 import { context, setOptions } from './utility/context.js'
+import { log } from './utility/log.js'
 
 const pluginName = 'LocalDependenciesPlugin'
 
@@ -39,7 +40,14 @@ export const LocalDependenciesPlugin = class {
 
   // eslint-disable-next-line class-methods-use-this
   apply(compiler) {
+    const localDependencies = getLocalDependencies()
+
+    if (!localDependencies) {
+      return
+    }
+
     if (compiler.options.mode === 'production' && !context.options.production) {
+      log('Not installing localDependencies in webpack production mode.')
       return
     }
 
@@ -48,17 +56,12 @@ export const LocalDependenciesPlugin = class {
       context.options.watch = false
     }
 
-    const localDependencies = getLocalDependencies()
-
-    if (!localDependencies) {
-      return
-    }
-
     // Initial install of local dependencies.
     compiler.hooks.environment.tap(pluginName, async () => {
       if (context.options.script) {
         runScripts(localDependencies, context.options.watch)
       }
+
       await installWithoutSave(localDependencies)
 
       if (!context.options.watch) {
