@@ -105,7 +105,9 @@ const generateHash = async (packagePath) => {
     },
   })
 
-  writeFileSync(hashFilePath, hash)
+  if (existsSync(dirname(hashFilePath))) {
+    writeFileSync(hashFilePath, hash)
+  }
 }
 
 const packageNeedsUpdate = async (packagePath) => {
@@ -307,7 +309,7 @@ export const getWatchPaths = (packagePath) => {
 
   if (filesMissing && npmIgnoreMissing) {
     log(
-      '"files" entry in package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm',
+      `"files" entry in ${packagePath}/package.json or .npmignore file missing. Add it to prevent publishing unnecessary files to npm`,
       'warning'
     )
     return ['.', alwaysIgnored, name]
