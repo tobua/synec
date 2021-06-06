@@ -27,14 +27,15 @@ const setPath = (path, value) =>
     state
   )
 
-const getPackageJson = (packagePath = '') => {
+// TODO add cache to avoid multiple lookups to the same package
+export const getPackageJson = (packagePath = '') => {
   const packageJsonPath = join(process.cwd(), packagePath, 'package.json')
 
   try {
     return JSON.parse(readFileSync(packageJsonPath, 'utf8'))
   } catch (error) {
     log(`Unable to load package.json from ${packageJsonPath}`, 'error')
-    return null
+    return {}
   }
 }
 

@@ -15,7 +15,7 @@ import parseIgnore from 'parse-gitignore'
 import checkDependencies from 'check-dependencies'
 import { hashElement } from 'folder-hash'
 import rimraf from 'rimraf'
-import { context } from './utility/context.js'
+import { context, getPackageJson } from './utility/context.js'
 import { log } from './utility/log.js'
 
 export const getLocalDependencies = () => {
@@ -90,9 +90,7 @@ export const installAppDependencies = (packagePath = '') => {
 }
 
 const generateHash = async (packagePath) => {
-  const { name } = JSON.parse(
-    readFileSync(join(process.cwd(), packagePath, 'package.json'))
-  )
+  const { name } = getPackageJson(packagePath)
 
   const hashFilePath = join(process.cwd(), 'node_modules', name, '.synec-hash')
 
@@ -112,9 +110,7 @@ const generateHash = async (packagePath) => {
 
 // Verify name and version required for successful installation are present.
 const packageValid = (packagePath) => {
-  const { name, version } = JSON.parse(
-    readFileSync(join(process.cwd(), packagePath, 'package.json'))
-  )
+  const { name, version } = getPackageJson(packagePath)
 
   // Packages require at least a name and a version for installation with npm.
   const valid = name && version
@@ -130,9 +126,7 @@ const packageValid = (packagePath) => {
 }
 
 const packageNeedsUpdate = async (packagePath) => {
-  const { name } = JSON.parse(
-    readFileSync(join(process.cwd(), packagePath, 'package.json'))
-  )
+  const { name } = getPackageJson(packagePath)
 
   if (!existsSync(join(process.cwd(), 'node_modules', name))) {
     return true
