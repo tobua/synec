@@ -110,6 +110,25 @@ const generateHash = async (packagePath) => {
   }
 }
 
+// Verify name and version required for successful installation are present.
+const packageValid = (packagePath) => {
+  const { name, version } = JSON.parse(
+    readFileSync(join(process.cwd(), packagePath, 'package.json'))
+  )
+
+  // Packages require at least a name and a version for installation with npm.
+  const valid = name && version
+
+  if (!valid) {
+    log(
+      `Won't install package in ${packagePath} as either name or version missing in package.json.`,
+      'warning'
+    )
+  }
+
+  return valid
+}
+
 const packageNeedsUpdate = async (packagePath) => {
   const { name } = JSON.parse(
     readFileSync(join(process.cwd(), packagePath, 'package.json'))
@@ -167,13 +186,17 @@ export const installWithoutSave = async (packagePaths) => {
   // Without newline at first, so that this line will be overridden on success.
   process.stdout.write('Installing localDependencies...')
 
-  let pathsToUpdate = await Promise.all(packagePaths.map(packageNeedsUpdate))
-  pathsToUpdate = packagePaths.filter((_, index) => pathsToUpdate[index])
+  const validPackagePaths = packagePaths.filter(packageValid)
+
+  let pathsToUpdate = await Promise.all(
+    validPackagePaths.map(packageNeedsUpdate)
+  )
+  pathsToUpdate = validPackagePaths.filter((_, index) => pathsToUpdate[index])
 
   // If one package is out of date we have to install the others again as well
   // otherwise they'll be pruned from node_modules.
   if (pathsToUpdate.length !== 0) {
-    await installTarballs(packagePaths)
+    await installTarballs(validPackagePaths)
   }
 
   // Removes previous log.
