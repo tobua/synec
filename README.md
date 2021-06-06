@@ -4,13 +4,13 @@
 
 # synec
 
-Test local npm packages in projects by listing them in `localDependencies` in the `package.json` of the project.
+Install local npm packages by listing them as `localDependencies` in your `package.json`.
 
 ```json
 {
-  "name": "your-project",
+  "name": "my-project",
   "dependencies": {
-    "react": ""
+    "react": "^17.0.0"
   },
   "localDependencies": {
     "my-react-plugin": "../my-react-plugin"
@@ -21,70 +21,84 @@ Test local npm packages in projects by listing them in `localDependencies` in th
 ## Features
 
 - Installs npm packages from local folders
-- Reinstalls only when changes have been made
 - Watches for changes and copies them over directly
 - Installs `dependencies` of local packages
+- Reinstalls only when changes have been made
 - Runs `build` or `watch` script before installing plugin
-- Provides plugin for seamless build tool integration
-- Installs `localDependencies` before build
+- webpack plugin for seamless integration
 
 ## Installation
 
-> Requires `node` >= 13.2.0
+> Requires `node` >= 14 (Published as ES Module, localDependencies possible with ESM or CJS)
 
 ```
-npm i synec
+npm install synec
 ```
+
+## Options
+
+`synec --watch` (default `false`) Watch `localDependencies` for changes until the current script is closed.
+
+`synec --no-script` (default `true`) Disable running `build` or `watch` script before installing the plugin.
+
+`synec --no-production` (default `true`) Don't install localDependencies in `process.env.NODE_ENV === 'production'` or webpack production mode.
 
 ## Usage
 
-This functionality can either be added as a webpack plugin or as an additional command ahead of your build scripts.
+There are different ways how and where to integrate the plugin approprite for different use cases.
 
-### With scripts
+### Installation before running scripts
 
-Add `synec` in front of a `script` inside `package.json` and it will make sure `localDependencies` are installed and up-to-date when the following command starts. It will continue watching the files and keep them in sync even when the following script runs in watch mode as well.
+Add `synec` in front of a `script` inside `package.json` and it will make sure `localDependencies` are installed and up-to-date when the following command starts. The next script in the chain will be started once the installation is done.
 
 ```json
 {
   "scripts": {
-    "start": "synec && webpack --watch"
+    "start": "synec --watch && webpack serve",
+    "watch": "synec --watch && webpack watch",
+    "build": "synec && webpack build"
   }
 }
 ```
 
-> Options: `--no-watch` disable watching for changes, `--production` also install in production mode and `--no-script` disable running `build` or `watch` script before installing the plugin.
+### Installation together with regular dependencies
 
-### As a webpack Plugin
+`localDependencies` can be installed along with regular ones by adding a postinstall script that will be run during a regular install with `npm install`.
 
-If your setup is using `webpack` using this plugin is preferred. Inside `webpack.config.js` add
-
-```js
-const { LocalDependenciesPlugin } = require('synec')
-// or as ES module
-import { LocalDependenciesPlugin } from 'synec'
-
-plugins: [new LocalDependenciesPlugin()]
+```json
+{
+  "scripts": {
+    "start": "webpack --watch",
+    "postinstall": "synec"
+  }
+}
 ```
 
-Note: Currently not compatible with [webpack 4](https://github.com/webpack/webpack-cli/issues/1622), since the `webpack-cli` is still using the old require
-for CommonJS. Probably, until version 1 of this package that's fixed. The CLI and
-programmatic version of webpack will work fine already. Here is the code snippet using the old require [webpack-cli](https://github.com/webpack/webpack-cli/blob/544b06eb43806078ae505bbcc486da38fcd0dd3b/packages/webpack-cli/lib/groups/ConfigGroup.js#L79).
+### Right before Build as a webpack Plugin
 
-Here are the available `options` with their respective defaults.
+If your setup is using `webpack` using this plugin is preferred. Create a `webpack.config.js` and add the plugin there.
+
+```js
+// File webpack.config.js
+import { LocalDependenciesPlugin } from 'synec'
+
+export default {
+  plugins: [new LocalDependenciesPlugin()],
+}
+```
+
+Note that this only works if your project is set up with ES Modules (`"type": "module"` in `package.json`). The same options as described above are available.
 
 ```js
 new LocalDependenciesPlugin({
-  production: false,
-  watch: true, 
-  script: true,
+  // Watch localDependencies for changes and automatically copy them over.
+  watch: true, // Always disabled in webpack-production mode, default: false.
+  // If available run build or watch script before installation.
+  script: false, // default, true.
+  // Also install local dependencies in production mode.
+  production: false, // default, true.
 })
 ```
-
-`production`: Whether to also install local dependencies in production mode.
-
-`watch`: Watch source folder of `localDependencies` for changes and automatically copy them over.
-
-`script`: If `watch` options is false run the `build` script of the plugin and otherwise run the `watch` script inside the plugin if available.
 
 ## Motivation
 
@@ -94,6 +108,7 @@ For a quick solution you can also do `npm i --no-save $(npm pack ../my-plugin | 
 
 ## Upcoming Features
 
+- `npx synec --path ../my-plugin`
 - Watch dependencies of local dependencies in package.json
 - Watch `localDependencies` object in package.json for changes
 
