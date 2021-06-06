@@ -13,18 +13,18 @@ const schema = {
   title: `${pluginName} options`,
   type: 'object',
   properties: {
-    production: {
-      description: 'Enables the plugin also in production mode, default false.',
-      type: 'boolean',
-    },
     watch: {
       description:
-        'Watches packages for changes and updates on changes, default true.',
+        'Watches packages for changes and updates on changes, default false.',
       type: 'boolean',
     },
     script: {
       description:
         'Run build or watch script before installing plugin, default true.',
+      type: 'boolean',
+    },
+    production: {
+      description: 'Enables the plugin also in production mode, default true.',
       type: 'boolean',
     },
   },

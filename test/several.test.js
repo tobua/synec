@@ -1,5 +1,6 @@
 import { existsSync } from 'fs'
 import { join } from 'path'
+import { performance } from 'perf_hooks'
 import { writeFile, readFile } from './utility/file.js'
 import { prepare } from './utility/prepare.js'
 import { installAppDependencies, installWithoutSave } from '../utility.js'

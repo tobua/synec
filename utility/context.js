@@ -8,7 +8,7 @@ const state = {
     // Plugin<{ pkg }>
   },
   options: {
-    watch: true,
+    watch: false,
     production: true,
     script: true,
   },
@@ -120,29 +120,29 @@ export const getOptionsFromArgv = () => {
   // Set options.
   const scripts = process.argv
 
-  if (scripts.includes('--no-watch')) {
-    context.options.watch = false
+  if (scripts.includes('--watch')) {
+    context.options.watch = true
   }
 
   if (scripts.includes('--no-script')) {
     context.options.script = false
   }
 
-  if (scripts.includes('--production')) {
-    context.options.production = true
+  if (scripts.includes('--no-production')) {
+    context.options.production = false
   }
 }
 
 export const setOptions = (options) => {
-  if (!options.watch) {
-    context.options.watch = false
+  if (typeof options.watch !== 'undefined') {
+    context.options.watch = !!options.watch
   }
 
-  if (!options.script) {
-    context.options.script = false
+  if (typeof options.script !== 'undefined') {
+    context.options.script = !!options.script
   }
 
-  if (options.production) {
-    context.options.production = true
+  if (typeof options.production !== 'undefined') {
+    context.options.production = !!options.script
   }
 }

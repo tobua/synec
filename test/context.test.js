@@ -28,17 +28,17 @@ test('Reads package contents of referenced plugins.', () => {
 })
 
 test('Default options are set properly.', () => {
-  expect(context.options.watch).toEqual(true)
+  expect(context.options.watch).toEqual(false)
   expect(context.options.production).toEqual(true)
   expect(context.options.script).toEqual(true)
 })
 
 test('Options can be set.', () => {
-  expect(context.options.watch).toEqual(true)
-
-  context.options.watch = false
-
   expect(context.options.watch).toEqual(false)
+
+  context.options.watch = true
+
+  expect(context.options.watch).toEqual(true)
 })
 
 test('Setters for options work properly.', () => {
