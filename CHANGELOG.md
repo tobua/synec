@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/tobua/synec/compare/v0.1.16...v0.2.0) (2021-06-06)
+
+
+### ⚠ BREAKING CHANGES
+
+* **options:** watch option default and argument flipped
+
+### Features
+
+* **install:** verify if package can be installed and warn otherwise ([2d4e27a](https://github.com/tobua/synec/commit/2d4e27a922f985ded6a15a7666bb33613a42034c))
+* **options:** watch disabled by default ([5aa114a](https://github.com/tobua/synec/commit/5aa114a8da24ca4b7b3935c03c33c6c072226346))
+
+
+### Bug Fixes
+
+* **package:** add missing dependency ([32a5460](https://github.com/tobua/synec/commit/32a54603ccefa1899ed92ac96bc03a4453787a55))
+* **plugin:** improved plugin experience due to logs and order ([3cdb964](https://github.com/tobua/synec/commit/3cdb964a0dea8f42e44b717a11bd60e56c3affb3))
+
 ### [0.1.16](https://github.com/tobua/synec/compare/v0.1.15...v0.1.16) (2021-02-15)
 
 
