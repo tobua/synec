@@ -68,7 +68,7 @@ test('Watch script is run in background and generates assets.', async () => {
   )
 
   // Wait as script runs in watch mode with separate process.
-  await wait(15)
+  await wait(30)
 
   killWatchers(watchers)
 

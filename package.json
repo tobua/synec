@@ -1,7 +1,7 @@
 {
   "name": "synec",
   "description": "Test local npm packages in projects.",
-  "version": "0.2.0",
+  "version": "0.0.0-development",
   "repository": "github:tobua/synec",
   "license": "MIT",
   "author": "Matthias Giger",
@@ -13,17 +13,20 @@
   },
   "dependencies": {
     "check-dependencies": "^1.1.0",
-    "chokidar": "^3.5.1",
+    "chokidar": "^3.5.2",
     "folder-hash": "^4.0.1",
     "logua": "^2.1.4",
     "parse-gitignore": "^1.0.1",
     "rimraf": "^3.0.2",
-    "schema-utils": "^3.0.0",
+    "schema-utils": "^3.1.1",
     "semver": "^7.3.5",
-    "strip-ansi": "^7.0.0"
+    "strip-ansi": "^7.0.1"
   },
   "type": "module",
   "main": "index.js",
+  "exports": {
+    "default": "./index.js"
+  },
   "bin": "cli/index.js",
   "source": "index.js",
   "types": "index.d.ts",
@@ -34,7 +37,7 @@
     "index.d.ts"
   ],
   "devDependencies": {
-    "padua": "^0.3.6"
+    "padua": "^0.3.14"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {
@@ -58,9 +61,7 @@
         }
       ]
     },
-    "transformIgnorePatterns": [
-      "node_modules/cint"
-    ]
+    "transformIgnorePatterns": []
   },
   "engines": {
     "node": ">= 14"
