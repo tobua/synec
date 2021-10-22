@@ -1,5 +1,6 @@
 import { join } from 'path'
 import { readFileSync } from 'fs'
+import mem from 'mem'
 import { log } from './log.js'
 
 const state = {
@@ -27,8 +28,7 @@ const setPath = (path, value) =>
     state
   )
 
-// TODO add cache to avoid multiple lookups to the same package
-export const getPackageJson = (packagePath = '') => {
+const readPackageJson = (packagePath = '') => {
   const packageJsonPath = join(process.cwd(), packagePath, 'package.json')
 
   try {
@@ -38,6 +38,10 @@ export const getPackageJson = (packagePath = '') => {
     return {}
   }
 }
+
+// Memoized to avoid multiple lookups to the same package.
+export const getPackageJson =
+  typeof jest === 'undefined' ? mem(readPackageJson) : readPackageJson
 
 const getState = (path, generator) => {
   const cached = resolvePath(path)
