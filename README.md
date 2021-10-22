@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/tobua/synec/raw/master/logo.png" alt="synec" width="300">
+  <img src="https://github.com/tobua/synec/raw/main/logo.png" alt="synec" width="300">
 </p>
 
 # synec
