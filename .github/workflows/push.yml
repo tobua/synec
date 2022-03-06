@@ -1,18 +1,18 @@
-name: release
+name: push
 
 on:
   push:
     branches: [main]
 
 jobs:
-  release:
+  test-release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: npm install
       - name: 🧪 Test
         run: npm test -- --forceExit
-      - uses: tobua/release-npm-action@v1
+      - name: 📢 Release
+        uses: tobua/release-npm-action@v1
         with:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

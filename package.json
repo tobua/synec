@@ -13,13 +13,13 @@
   },
   "dependencies": {
     "check-dependencies": "^1.1.0",
-    "chokidar": "^3.5.2",
-    "folder-hash": "^4.0.1",
+    "chokidar": "^3.5.3",
+    "folder-hash": "^4.0.2",
     "logua": "^2.1.4",
-    "mem": "^9.0.1",
+    "mem": "^9.0.2",
     "parse-gitignore": "^1.0.1",
     "rimraf": "^3.0.2",
-    "schema-utils": "^3.1.1",
+    "schema-utils": "^4.0.0",
     "semver": "^7.3.5",
     "strip-ansi": "^7.0.1"
   },
@@ -38,7 +38,7 @@
     "index.d.ts"
   ],
   "devDependencies": {
-    "padua": "^0.3.14"
+    "padua": "^0.5.3"
   },
   "prettier": "padua/configuration/.prettierrc.json",
   "eslintConfig": {
